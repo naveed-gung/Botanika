@@ -148,7 +148,6 @@ const FirebaseService = {
             this.db = firebase.firestore();
 
             await this.waitForInitialAuthState();
-            await this.ensureSeedData();
             await this.refreshProducts();
             await this.syncCurrentUserFromAuth(this.auth.currentUser);
             await this.refreshScopedData();
@@ -184,79 +183,6 @@ const FirebaseService = {
         });
     },
 
-    async ensureSeedData() {
-        const productSnapshot = await this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).limit(1).get();
-
-        if (productSnapshot.empty) {
-            const batch = this.db.batch();
-
-            BOTANIKA.SAMPLE_PRODUCTS.forEach(product => {
-                const docRef = this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).doc(product.id);
-                batch.set(docRef, {
-                    ...product,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            });
-
-            await batch.commit();
-        }
-
-        await this.ensureAdminAccount();
-    },
-
-    async ensureAdminAccount() {
-        const adminProfile = await this.findUserByEmail(BOTANIKA.DEFAULT_ADMIN.email);
-
-        if (adminProfile) {
-            await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(adminProfile.id).set({
-                name: BOTANIKA.DEFAULT_ADMIN.name,
-                email: BOTANIKA.DEFAULT_ADMIN.email.toLowerCase(),
-                isAdmin: true,
-                avatar: adminProfile.avatar || '',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-            return;
-        }
-
-        const methods = await this.auth.fetchSignInMethodsForEmail(BOTANIKA.DEFAULT_ADMIN.email);
-
-        if (!methods.length) {
-            const credentials = await this.auth.createUserWithEmailAndPassword(
-                BOTANIKA.DEFAULT_ADMIN.email,
-                BOTANIKA.DEFAULT_ADMIN.password
-            );
-
-            await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(credentials.user.uid).set({
-                name: BOTANIKA.DEFAULT_ADMIN.name,
-                email: BOTANIKA.DEFAULT_ADMIN.email.toLowerCase(),
-                isAdmin: true,
-                avatar: '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-
-            await this.auth.signOut();
-            return;
-        }
-
-        const credentials = await this.auth.signInWithEmailAndPassword(
-            BOTANIKA.DEFAULT_ADMIN.email,
-            BOTANIKA.DEFAULT_ADMIN.password
-        );
-
-        await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(credentials.user.uid).set({
-            name: BOTANIKA.DEFAULT_ADMIN.name,
-            email: BOTANIKA.DEFAULT_ADMIN.email.toLowerCase(),
-            isAdmin: true,
-            avatar: '',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        await this.auth.signOut();
-    },
-
     async refreshAll() {
         await Promise.all([
             this.refreshProducts(),
@@ -282,29 +208,46 @@ const FirebaseService = {
             return this.cache.users;
         }
 
-        if (this.currentUser && this.currentUser.isAdmin) {
-            const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).get();
+        try {
+            if (this.currentUser && this.currentUser.isAdmin) {
+                const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).get();
 
-            this.cache.users = snapshot.docs
-                .map(doc => this.normalizeRecord(doc))
-                .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+                this.cache.users = snapshot.docs
+                    .map(doc => this.normalizeRecord(doc))
+                    .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
 
-            return this.cache.users;
+                return this.cache.users;
+            }
+
+            const profileDoc = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(authUser.uid).get();
+            this.cache.users = profileDoc.exists ? [this.normalizeRecord(profileDoc)] : [];
+        } catch (error) {
+            if (error && error.code === 'permission-denied') {
+                this.cache.users = [];
+                return this.cache.users;
+            }
+
+            throw error;
         }
-
-        const profileDoc = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(authUser.uid).get();
-
-        this.cache.users = profileDoc.exists ? [this.normalizeRecord(profileDoc)] : [];
 
         return this.cache.users;
     },
 
     async refreshProducts() {
-        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).get();
+        try {
+            const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).get();
 
-        this.cache.products = snapshot.docs
-            .map(doc => this.normalizeRecord(doc))
-            .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+            this.cache.products = snapshot.docs
+                .map(doc => this.normalizeRecord(doc))
+                .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+        } catch (error) {
+            if (error && error.code === 'permission-denied') {
+                this.cache.products = [];
+                return this.cache.products;
+            }
+
+            throw error;
+        }
 
         return this.cache.products;
     },
@@ -318,11 +261,17 @@ const FirebaseService = {
             return this.cache.carts;
         }
 
-        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.CARTS).doc(authUser.uid).get();
+        try {
+            const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.CARTS).doc(authUser.uid).get();
 
-        if (snapshot.exists) {
-            const data = this.normalizeRecord(snapshot);
-            carts[authUser.uid] = Array.isArray(data.items) ? data.items : [];
+            if (snapshot.exists) {
+                const data = this.normalizeRecord(snapshot);
+                carts[authUser.uid] = Array.isArray(data.items) ? data.items : [];
+            }
+        } catch (error) {
+            if (!(error && error.code === 'permission-denied')) {
+                throw error;
+            }
         }
 
         this.cache.carts = carts;
@@ -337,15 +286,24 @@ const FirebaseService = {
             return this.cache.orders;
         }
 
-        const query = this.currentUser && this.currentUser.isAdmin
-            ? this.db.collection(BOTANIKA.COLLECTIONS.ORDERS)
-            : this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).where('userId', '==', authUser.uid);
+        try {
+            const query = this.currentUser && this.currentUser.isAdmin
+                ? this.db.collection(BOTANIKA.COLLECTIONS.ORDERS)
+                : this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).where('userId', '==', authUser.uid);
 
-        const snapshot = await query.get();
+            const snapshot = await query.get();
 
-        this.cache.orders = snapshot.docs
-            .map(doc => this.normalizeRecord(doc))
-            .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
+            this.cache.orders = snapshot.docs
+                .map(doc => this.normalizeRecord(doc))
+                .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
+        } catch (error) {
+            if (error && error.code === 'permission-denied') {
+                this.cache.orders = [];
+                return this.cache.orders;
+            }
+
+            throw error;
+        }
 
         return this.cache.orders;
     },
@@ -1397,8 +1355,8 @@ function createFooter() {
                 <nav class="footer-links">
                     <a href="shop.html">Shop</a>
                     <a href="shop.html">Collections</a>
-                    <a href="#">About Us</a>
-                    <a href="#">Care Guides</a>
+                    <a href="about.html">About Us</a>
+                    <a href="care.html">Care Guides</a>
                     <a href="#">Contact</a>
                 </nav>
             </div>

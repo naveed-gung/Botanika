@@ -14,22 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const emailLinkBanner = document.getElementById('emailLinkBanner');
     const emailLinkCompleteForm = document.getElementById('emailLinkCompleteForm');
     const emailLinkConfirmEmail = document.getElementById('emailLinkConfirmEmail');
+    let firebaseReady = false;
 
-    try {
-        await BOTANIKA.ready();
-    } catch (error) {
-        console.error(error);
-        Toast.error('Firebase failed to start. Check your local config.');
-        return;
-    }
-
-    const isEmailLinkFlow = UserManager.isEmailLinkSignIn(window.location.href);
-
-    if (UserManager.isLoggedIn() && !isEmailLinkFlow) {
-        redirectUser(UserManager.getCurrentUser());
-        return;
-    }
-    
     function showLogin() {
         authContainer.classList.add('show-login');
         loginForm.querySelector('input').focus();
@@ -62,7 +48,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         emailLinkBanner.classList.toggle('hidden', !visible);
     }
 
+    async function ensureFirebaseReady() {
+        if (firebaseReady) {
+            return true;
+        }
+
+        try {
+            await BOTANIKA.ready();
+            firebaseReady = true;
+            return true;
+        } catch (error) {
+            console.error(error);
+            Toast.error('Firebase is not ready yet. Update your Firestore rules and config, then try again.');
+            return false;
+        }
+    }
+
     async function handleGoogleLogin() {
+        if (!await ensureFirebaseReady()) {
+            return;
+        }
+
         const result = await UserManager.loginWithGoogle();
 
         if (result.success) {
@@ -75,6 +81,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function handleMagicLink(email) {
+        if (!await ensureFirebaseReady()) {
+            return;
+        }
+
         if (!email || !isValidEmail(email)) {
             Toast.error('Enter a valid email before requesting a sign-in link');
             return;
@@ -107,6 +117,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         showLogin();
     }
 
+    try {
+        await BOTANIKA.ready();
+        firebaseReady = true;
+    } catch (error) {
+        console.error(error);
+        Toast.info('The form animation still works, but Firebase actions are limited until your Firestore rules are updated.');
+    }
+
+    const isEmailLinkFlow = firebaseReady ? UserManager.isEmailLinkSignIn(window.location.href) : false;
+
+    if (firebaseReady && UserManager.isLoggedIn() && !isEmailLinkFlow) {
+        redirectUser(UserManager.getCurrentUser());
+        return;
+    }
+
     if (registerGoogleBtn) {
         registerGoogleBtn.addEventListener('click', handleGoogleLogin);
     }
@@ -129,6 +154,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (forgotPasswordBtn) {
         forgotPasswordBtn.addEventListener('click', async () => {
+            if (!await ensureFirebaseReady()) {
+                return;
+            }
+
             const email = document.getElementById('loginEmail').value.trim();
 
             if (!email || !isValidEmail(email)) {
@@ -150,6 +179,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (emailLinkCompleteForm) {
         emailLinkCompleteForm.addEventListener('submit', async e => {
             e.preventDefault();
+
+            if (!await ensureFirebaseReady()) {
+                return;
+            }
 
             const email = emailLinkConfirmEmail.value.trim();
 
@@ -185,6 +218,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (!await ensureFirebaseReady()) {
+                return;
+            }
 
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -226,6 +263,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (!await ensureFirebaseReady()) {
+                return;
+            }
 
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;

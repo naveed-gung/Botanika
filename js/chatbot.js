@@ -2,16 +2,38 @@ const BotanikaBot = {
     isOpen: false,
     messages: [],
     products: [],
+    isRendered: false,
+    dataReady: false,
 
     async init() {
-        await BOTANIKA.ready();
-        this.products = ProductManager.getAll();
-        this.render();
-        this.attachEventListeners();
-        this.addWelcomeMessage();
+        if (!this.isRendered) {
+            this.render();
+            this.attachEventListeners();
+            this.addWelcomeMessage();
+            this.isRendered = true;
+        }
+
+        try {
+            await BOTANIKA.ready();
+            this.products = ProductManager.getAll();
+            this.dataReady = true;
+            this.updateStatus('Online');
+        } catch (error) {
+            console.error(error);
+            this.dataReady = false;
+            this.updateStatus('Limited');
+            this.addMessage({
+                type: 'bot',
+                text: 'The chat UI is available, but live catalog data is blocked until Firestore rules allow product reads.'
+            });
+        }
     },
     
     render() {
+        if (document.getElementById('chatbotContainer')) {
+            return;
+        }
+
         const chatbotHTML = `
             <div class="chatbot-container" id="chatbotContainer">
                 <button class="chatbot-toggle" id="chatbotToggle" title="Chat with us">
@@ -74,7 +96,6 @@ const BotanikaBot = {
         const close = document.getElementById('chatbotClose');
         const send = document.getElementById('chatbotSend');
         const input = document.getElementById('chatbotInput');
-        const container = document.getElementById('chatbotContainer');
         const quickActions = document.querySelectorAll('.quick-action');
         
         toggle.addEventListener('click', () => this.toggle());
@@ -93,7 +114,18 @@ const BotanikaBot = {
         
         document.addEventListener('botanika:products-updated', () => {
             this.products = ProductManager.getAll();
+            if (this.products.length) {
+                this.dataReady = true;
+                this.updateStatus('Online');
+            }
         });
+    },
+
+    updateStatus(label) {
+        const status = document.querySelector('#chatbotWindow .status');
+        if (status) {
+            status.textContent = label;
+        }
     },
     
     toggle() {
@@ -248,7 +280,9 @@ const BotanikaBot = {
     
     getPriceResponse(question) {
         if (this.products.length === 0) {
-            return 'We currently have no products available. Please check back later!';
+            return this.dataReady
+                ? 'We currently have no products available. Please check back later.'
+                : 'I am ready to chat, but product data is still unavailable until Firestore product reads are allowed.';
         }
         
         const prices = this.products.map(p => p.price);
@@ -273,7 +307,9 @@ const BotanikaBot = {
     
     showAllProducts() {
         if (this.products.length === 0) {
-            return 'No products available at the moment.';
+            return this.dataReady
+                ? 'No products available at the moment.'
+                : 'Product data is currently blocked by Firestore rules, so I cannot list the catalog yet.';
         }
         
         const list = this.products.map(p => 
@@ -287,7 +323,9 @@ const BotanikaBot = {
         const sorted = [...this.products].sort((a, b) => b.price - a.price).slice(0, 3);
         
         if (sorted.length === 0) {
-            return 'No products available at the moment.';
+            return this.dataReady
+                ? 'No products available at the moment.'
+                : 'I cannot rank best sellers until product reads are available in Firestore.';
         }
         
         const list = sorted.map(p => 
@@ -301,7 +339,9 @@ const BotanikaBot = {
         const budget = this.products.filter(p => p.price < 30).sort((a, b) => a.price - b.price);
         
         if (budget.length === 0) {
-            return 'No budget-friendly options available right now.';
+            return this.dataReady
+                ? 'No budget-friendly options available right now.'
+                : 'Budget recommendations need product reads from Firestore, which are currently blocked.';
         }
         
         const list = budget.map(p => 
@@ -315,7 +355,9 @@ const BotanikaBot = {
         const premium = this.products.filter(p => p.price >= 50).sort((a, b) => b.price - a.price);
         
         if (premium.length === 0) {
-            return 'No premium products available at the moment.';
+            return this.dataReady
+                ? 'No premium products available at the moment.'
+                : 'Premium recommendations need product reads from Firestore, which are currently blocked.';
         }
         
         const list = premium.map(p => 
@@ -333,7 +375,9 @@ const BotanikaBot = {
         );
         
         if (matches.length === 0) {
-            return `I couldn't find any products matching "${query}". Try asking about:\n• Specific plant names\n• Categories like "Indoor Plants"\n• Price ranges\n• Product availability`;
+            return this.dataReady
+                ? `I couldn't find any products matching "${query}". Try asking about:\n• Specific plant names\n• Categories like "Indoor Plants"\n• Price ranges\n• Product availability`
+                : 'I can still answer general questions, but product search is blocked until Firestore product reads are enabled.';
         }
         
         if (matches.length === 1) {
