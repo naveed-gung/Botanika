@@ -53,10 +53,10 @@
     <rect x="820" y="342" width="238" height="12" rx="6" fill="#50634A"/>
     <rect x="820" y="366" width="184" height="10" rx="5" fill="#41553D"/>
   </g>
-  <text x="118" y="166" fill="#314230" font-family="Georgia, 'Times New Roman', serif" font-size="78" letter-spacing="-2">BOTANIKA</text>
-  <text x="120" y="220" fill="#5F6B55" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="22" letter-spacing="5">CURATED BOTANICAL COMMERCE EXPERIENCE</text>
-  <text x="120" y="316" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">Responsive storefront, Firebase-backed admin,</text>
-  <text x="120" y="360" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">customer profiles, featured collections,</text>
-  <text x="120" y="404" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">and inline base64 media handling.</text>
-  <text x="120" y="524" fill="#8A9A5B" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="20" letter-spacing="2.8">SHOP  •  ADMIN  •  USER DASHBOARD  •  CHAT ASSISTANT</text>
+  <text x="118" y="166" fill="#314230" font-family="Inter, 'Segoe UI', sans-serif" font-size="78" font-weight="700" letter-spacing="-3">BOTANIKA</text>
+  <text x="120" y="220" fill="#5F6B55" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="22" font-weight="600" letter-spacing="5">CURATED BOTANICAL COMMERCE EXPERIENCE</text>
+  <text x="120" y="316" fill="#314230" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="30" font-weight="500">Responsive storefront, Firebase-backed admin,</text>
+  <text x="120" y="360" fill="#314230" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="30" font-weight="500">customer profiles, featured collections,</text>
+  <text x="120" y="404" fill="#314230" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="30" font-weight="500">and inline base64 media handling.</text>
+  <text x="120" y="524" fill="#8A9A5B" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="20" font-weight="600" letter-spacing="2.8">SHOP  •  ADMIN  •  USER DASHBOARD  •  CHAT ASSISTANT</text>
 </svg>
