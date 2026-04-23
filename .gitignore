@@ -2,3 +2,6 @@ js/firebase.config.js
 .firebase/
 .firebaserc
 CHATBOT_README.md
+
+# Local Netlify folder
+.netlify
