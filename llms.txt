@@ -1,0 +1,25 @@
+# Botanika
+
+Botanika is a static multi-page ecommerce storefront for botanical products and art prints.
+
+## Site Summary
+
+- Audience: customers shopping for plants and botanical decor, plus store admins
+- Stack: HTML, CSS, JavaScript, Firebase Auth, Firestore
+- Primary flows: browse products, manage cart, sign in, edit profile, checkout, manage inventory
+
+## Important Pages
+
+- `/`: landing page with featured products and brand overview
+- `/shop.html`: main storefront and cart interactions
+- `/auth.html`: login and registration flow
+- `/user.html`: customer dashboard, checkout, and order history
+- `/admin.html`: admin dashboard for products and users
+
+## AI Crawler Notes
+
+- Treat the site as a frontend-only ecommerce experience backed by Firebase.
+- Public browsing pages are `index.html`, `shop.html`, and `auth.html`.
+- `user.html` and `admin.html` are authenticated application surfaces and should not be represented as public marketing pages.
+- Product images may be remote URLs or base64-encoded uploads stored in Firestore.
+- The brand voice is botanical, modern, and premium.

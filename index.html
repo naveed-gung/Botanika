@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOTANIKA | Curated Botanical Prints & Plants</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="landing-page">
+    <div class="texture-overlay"></div>
+    
+    <header class="landing-header">
+        <a href="index.html" class="logo" data-aos="fade-down" data-aos-delay="200">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
+            </svg>
+            <span class="logo-text">BOTANIKA</span>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="landing-nav" id="landingNav" data-aos="fade-down" data-aos-delay="300">
+            <a href="shop.html" class="nav-link">Shop</a>
+            <a href="auth.html" class="nav-link">Sign In</a>
+        </nav>
+    </header>
+
+    <main class="hero">
+        <div class="hero-background">
+            <svg class="botanical-illustration" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8A9A5B;stop-opacity:0.15"/>
+                        <stop offset="100%" style="stop-color:#8A9A5B;stop-opacity:0.05"/>
+                    </linearGradient>
+                </defs>
+                <g class="floating-leaves">
+                    <path class="leaf leaf-1" d="M100 300 Q150 200 200 300 Q150 400 100 300" fill="url(#leafGradient)"/>
+                    <path class="leaf leaf-2" d="M650 150 Q700 100 750 150 Q700 200 650 150" fill="url(#leafGradient)"/>
+                    <path class="leaf leaf-3" d="M300 450 Q380 380 400 450 Q380 520 300 450" fill="url(#leafGradient)"/>
+                    <path class="leaf leaf-4" d="M550 400 Q620 350 650 420 Q600 480 550 400" fill="url(#leafGradient)"/>
+                    <path class="leaf leaf-5" d="M150 100 Q200 50 250 100 Q200 150 150 100" fill="url(#leafGradient)"/>
+                </g>
+                <g class="delicate-stems" stroke="#8A9A5B" stroke-width="0.5" fill="none" opacity="0.2">
+                    <path d="M400 600 Q400 400 350 200"/>
+                    <path d="M400 600 Q420 450 500 300"/>
+                    <path d="M200 600 Q220 500 180 350"/>
+                    <path d="M600 600 Q580 480 620 320"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="hero-content">
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="400">Curated with care</p>
+            <h1 class="hero-title" data-aos="fade-up" data-aos-delay="500">Bring nature<br/>into your space</h1>
+            <p class="hero-description" data-aos="fade-up" data-aos-delay="600">
+                Discover our collection of botanical prints and living plants,<br/>
+                each chosen to transform your home into a sanctuary.
+            </p>
+            <div class="hero-cta" data-aos="fade-up" data-aos-delay="700">
+                <a href="shop.html" class="btn btn-primary">
+                    <span>Browse the Shop</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="shop.html#curate" class="btn btn-secondary">
+                    <span>Curate Your Space</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator" data-aos="fade-up" data-aos-delay="1000">
+            <span>Scroll to explore</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </main>
+
+    <div class="plant-scroll-container" data-aos="fade-up" data-aos-delay="800">
+        <div class="plant-scroll">
+            <div class="plant-icons">
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 5v30"/><path d="M13 12c0 5 3.5 8 7 10"/><path d="M27 12c0 5-3.5 8-7 10"/><path d="M10 20c3.5 0 6.5 2 10 5"/><path d="M30 20c-3.5 0-6.5 2-10 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V20M15 25c-3-2-5-6-3-10 2 4 6 5 8 5M25 25c3-2 5-6 3-10-2 4-6 5-8 5M20 15c0-5-2-10-5-12 2 4 3 8 5 12M20 15c0-5 2-10 5-12-2 4-3 8-5 12"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><circle cx="20" cy="15" r="8" fill="none"/><path d="M20 23V35M12 30h16"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V18M10 18c0-6 4-10 10-10s10 4 10 10"/><path d="M15 18c0-3 2-5 5-5s5 2 5 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V20M20 20c-8 0-12-8-8-15M20 20c8 0 12-8 8-15"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><ellipse cx="20" cy="12" rx="6" ry="8"/><path d="M20 20V35M14 32h12"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M12 35V25c0-4 3-8 8-8s8 4 8 8v10M20 17V8M16 10l4-4 4 4"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V15M20 15l-8-10M20 15l8-10M20 20l-6 5M20 20l6 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35c0-10 8-15 8-25M20 35c0-10-8-15-8-25M20 25c-3 0-5 2-5 5M20 25c3 0 5 2 5 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V20M15 25c-3-2-5-6-3-10 2 4 6 5 8 5M25 25c3-2 5-6 3-10-2 4-6 5-8 5M20 15c0-5-2-10-5-12 2 4 3 8 5 12M20 15c0-5 2-10 5-12-2 4-3 8-5 12"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><circle cx="20" cy="15" r="8" fill="none"/><path d="M20 23V35M12 30h16"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V18M10 18c0-6 4-10 10-10s10 4 10 10"/><path d="M15 18c0-3 2-5 5-5s5 2 5 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V20M20 20c-8 0-12-8-8-15M20 20c8 0 12-8 8-15"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><ellipse cx="20" cy="12" rx="6" ry="8"/><path d="M20 20V35M14 32h12"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M12 35V25c0-4 3-8 8-8s8 4 8 8v10M20 17V8M16 10l4-4 4 4"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35V15M20 15l-8-10M20 15l8-10M20 20l-6 5M20 20l6 5"/></svg>
+                <svg class="plant-icon" viewBox="0 0 40 40"><path d="M20 35c0-10 8-15 8-25M20 35c0-10-8-15-8-25M20 25c-3 0-5 2-5 5M20 25c3 0 5 2 5 5"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <section class="featured-section" id="featured">
+        <div class="section-header" data-aos="fade-up">
+            <span class="section-tag">Featured Collection</span>
+            <h2 class="section-title">Bestsellers This Season</h2>
+            <p class="section-desc">Hand-picked favorites from our botanical collection</p>
+        </div>
+        <div class="featured-grid" id="featuredGrid"></div>
+        <div class="featured-cta" data-aos="fade-up" data-aos-delay="400">
+            <a href="shop.html" class="btn btn-secondary">
+                <span>View All Products</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <section class="values-section">
+        <div class="values-grid">
+            <div class="value-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="value-icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M24 4C26 8 32 12 32 20C32 28 28 34 24 44M24 4C22 8 16 12 16 20C16 28 20 34 24 44"/>
+                        <path d="M10 18c4 1 8 4 14 10M38 18c-4 1-8 4-14 10"/>
+                    </svg>
+                </div>
+                <h3>Sustainably Grown</h3>
+                <p>Every plant is ethically sourced from eco-conscious nurseries</p>
+            </div>
+            <div class="value-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="value-icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="8" y="12" width="32" height="28" rx="2"/>
+                        <path d="M16 12V8a8 8 0 0116 0v4"/>
+                        <circle cx="24" cy="28" r="4"/>
+                        <path d="M24 32v4"/>
+                    </svg>
+                </div>
+                <h3>Secure Packaging</h3>
+                <p>Plants arrive safe with our specially designed eco-packaging</p>
+            </div>
+            <div class="value-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="value-icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="24" cy="24" r="18"/>
+                        <path d="M24 14v10l6 6"/>
+                    </svg>
+                </div>
+                <h3>30-Day Guarantee</h3>
+                <p>Not thriving? We'll replace it or refund you, no questions</p>
+            </div>
+            <div class="value-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="value-icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20 8h8l4 8H16l4-8z"/>
+                        <path d="M8 16h32v24a4 4 0 01-4 4H12a4 4 0 01-4-4V16z"/>
+                        <path d="M18 28c0 3.3 2.7 6 6 6s6-2.7 6-6"/>
+                    </svg>
+                </div>
+                <h3>Expert Care Guides</h3>
+                <p>Detailed instructions included with every order</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content" data-aos="zoom-in" data-aos-duration="1000">
+            <div class="cta-decoration">
+                <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="0.5">
+                    <circle cx="60" cy="60" r="50" opacity="0.3"/>
+                    <circle cx="60" cy="60" r="40" opacity="0.2"/>
+                    <path d="M60 20c4 10 15 20 15 40s-10 30-15 50M60 20c-4 10-15 20-15 40s10 30 15 50" opacity="0.4"/>
+                </svg>
+            </div>
+            <span class="cta-tag">Ready to transform your space?</span>
+            <h2 class="cta-title">Start Your Botanical Journey</h2>
+            <p class="cta-desc">Join thousands who've brought nature indoors with Botanika</p>
+            <a href="shop.html" class="btn btn-primary btn-large">
+                <span>Explore the Collection</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-column footer-brand" data-aos="fade-up" data-aos-delay="100">
+                <a href="index.html" class="footer-logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
+                    </svg>
+                    <span>BOTANIKA</span>
+                </a>
+                <p class="footer-tagline">Bringing nature to modern living</p>
+            </div>
+            
+            <div class="footer-column footer-nav" data-aos="fade-up" data-aos-delay="200">
+                <h4>Explore</h4>
+                <nav class="footer-links">
+                    <a href="shop.html">Shop</a>
+                    <a href="shop.html">Collections</a>
+                    <a href="#">About Us</a>
+                    <a href="#">Care Guides</a>
+                </nav>
+            </div>
+            
+            <div class="footer-column footer-newsletter" data-aos="fade-up" data-aos-delay="300">
+                <h4>Stay Rooted</h4>
+                <p>Receive seasonal updates and botanical wisdom</p>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); Toast.success('Thank you for subscribing!');">
+                    <input type="email" placeholder="your@email.com" required>
+                    <button type="submit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p class="copyright">© 2026 Botanika. Cultivated with care.</p>
+            <div class="footer-plant-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <path d="M12 3v18M8 7c0 3 2 5 4 6M16 7c0 3-2 5-4 6M6 12c2 0 4 1 6 3M18 12c-2 0-4 1-6 3"/>
+                </svg>
+            </div>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                    </svg>
+                </a>
+                <a href="#" aria-label="Instagram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="2" width="20" height="20" rx="5"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <circle cx="18" cy="6" r="1" fill="currentColor"/>
+                    </svg>
+                </a>
+                <a href="#" aria-label="Pinterest">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v8M9 18c1-2 2-4 3-6"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="page-transition"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOTANIKA | My Account</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/user.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="user-page">
+    <div class="texture-overlay"></div>
+    
+    <!-- Navigation -->
+    <nav class="user-navbar">
+        <a href="index.html" class="logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
+            </svg>
+            <span class="logo-text">BOTANIKA</span>
+        </a>
+        
+        <div class="user-nav-center">
+            <span class="user-page-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                My Account
+            </span>
+        </div>
+        
+        <div class="nav-right">
+            <a href="shop.html" class="nav-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 6h15l-1.5 9h-12z"/>
+                    <circle cx="9" cy="20" r="1"/>
+                    <circle cx="18" cy="20" r="1"/>
+                </svg>
+                <span>Shop</span>
+            </a>
+            
+            <div class="user-badge-nav" id="userBadgeNav">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22"/>
+                </svg>
+                <span id="navUserName">User</span>
+            </div>
+            
+            <button class="nav-link logout-btn" id="userLogoutBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main User Content -->
+    <main class="user-main">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-avatar" id="welcomeAvatar">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="welcome-text">
+                    <h1>Welcome back, <span id="welcomeUserName">User</span>!</h1>
+                    <p>Manage your account, view orders, and explore your botanical journey</p>
+                </div>
+            </div>
+            <div class="welcome-date">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span id="currentDate"></span>
+            </div>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="user-stats">
+            <div class="stat-card">
+                <div class="stat-icon orders">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 6h15l-1.5 9h-12z"/>
+                        <circle cx="9" cy="20" r="1"/>
+                        <circle cx="18" cy="20" r="1"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Cart Items</span>
+                    <span class="stat-value" id="cartItemsCount">0</span>
+                    <span class="stat-change">items in your cart</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Cart Total</span>
+                    <span class="stat-value" id="cartTotalValue">$0.00</span>
+                    <span class="stat-change">ready to checkout</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon wishlist">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Available Plants</span>
+                    <span class="stat-value" id="availablePlants">0</span>
+                    <span class="stat-change">plants to explore</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon member">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Member Since</span>
+                    <span class="stat-value" id="memberSince">-</span>
+                    <span class="stat-change">Botanika member</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="user-content-grid">
+            <!-- Profile Card -->
+            <div class="user-card profile-card">
+                <div class="card-header">
+                    <h2>Profile Information</h2>
+                    <p>Your account details</p>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-avatar-block">
+                        <div class="profile-avatar" id="profileAvatar"></div>
+                        <div class="profile-avatar-actions">
+                            <input type="file" id="profileImageInput" accept="image/*" hidden>
+                            <button class="btn btn-secondary btn-small" id="profileImageTrigger" type="button">Upload Photo</button>
+                            <p class="profile-avatar-hint">Images are saved in Firestore as base64 data. Uploads are limited to 1 MB.</p>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-item">
+                            <span class="profile-label">Name</span>
+                            <span class="profile-value" id="profileName">-</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Email</span>
+                            <span class="profile-value" id="profileEmail">-</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Account Type</span>
+                            <span class="profile-value profile-badge" id="profileType">Customer</span>
+                        </div>
+                    </div>
+                    <div class="profile-editor">
+                        <label class="profile-form-label" for="profileNameInput">Update display name</label>
+                        <div class="profile-edit-row">
+                            <input type="text" id="profileNameInput" maxlength="60" placeholder="Your name">
+                            <button class="btn btn-secondary btn-small" id="saveProfileBtn" type="button">Save</button>
+                        </div>
+                        <div class="profile-secondary-actions">
+                            <button class="btn btn-secondary btn-small" id="passwordResetBtn" type="button">Send Password Reset Email</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Summary Card -->
+            <div class="user-card cart-summary-card">
+                <div class="card-header">
+                    <h2>Shopping Cart</h2>
+                    <p>Your current selections</p>
+                </div>
+                <div class="cart-summary-content" id="cartSummaryContent">
+                    <!-- Cart items will be dynamically inserted here -->
+                </div>
+                <div class="cart-summary-empty" id="cartSummaryEmpty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M6 6h15l-1.5 9h-12z"/>
+                        <circle cx="9" cy="20" r="1"/>
+                        <circle cx="18" cy="20" r="1"/>
+                        <path d="M6 6L5 3H2"/>
+                    </svg>
+                    <p>Your cart is empty</p>
+                    <a href="shop.html" class="btn btn-primary">
+                        <span>Browse Plants</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="cart-summary-footer" id="cartSummaryFooter" style="display: none;">
+                    <div class="cart-total-row">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">$0.00</span>
+                    </div>
+                    <div class="cart-actions">
+                        <a href="shop.html" class="btn btn-secondary">Continue Shopping</a>
+                        <button class="btn btn-primary" id="checkoutBtn">
+                            <span>Checkout</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="user-card actions-card">
+                <div class="card-header">
+                    <h2>Quick Actions</h2>
+                    <p>Navigate quickly</p>
+                </div>
+                <div class="quick-actions">
+                    <a href="shop.html" class="action-item">
+                        <div class="action-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <span class="action-title">Browse Shop</span>
+                            <span class="action-desc">Explore our collection</span>
+                        </div>
+                        <svg class="action-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    
+                    <a href="index.html" class="action-item">
+                        <div class="action-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <span class="action-title">Home</span>
+                            <span class="action-desc">Back to homepage</span>
+                        </div>
+                        <svg class="action-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    
+                    <button class="action-item" id="clearCartAction">
+                        <div class="action-icon warning">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </div>
+                        <div class="action-text">
+                            <span class="action-title">Clear Cart</span>
+                            <span class="action-desc">Remove all items</span>
+                        </div>
+                        <svg class="action-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="user-card order-history-card">
+                <div class="card-header card-header-inline">
+                    <div>
+                        <h2>Order History</h2>
+                        <p>Your latest confirmed orders</p>
+                    </div>
+                    <span class="info-pill" id="orderCountBadge">0 orders</span>
+                </div>
+                <div class="order-history-empty" id="orderHistoryEmpty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <p>You have not placed an order yet.</p>
+                </div>
+                <div class="order-history-list" id="orderHistoryList" style="display: none;"></div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="user-card activity-card">
+                <div class="card-header">
+                    <h2>Plant Care Tips</h2>
+                    <p>Keep your plants thriving</p>
+                </div>
+                <div class="tips-list">
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v6M12 22v-6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M22 12h-6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <span class="tip-title">Light Matters</span>
+                            <p>Most indoor plants prefer bright, indirect light. Avoid direct sunlight which can scorch leaves.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <span class="tip-title">Water Wisely</span>
+                            <p>Check soil moisture before watering. Most plants prefer to dry out slightly between waterings.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <span class="tip-title">Humidity Help</span>
+                            <p>Group plants together or use a pebble tray to increase humidity for tropical plants.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Clear Cart Confirmation Modal -->
+    <div class="modal-overlay" id="clearCartModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C17C54" stroke-width="1.5">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+            </div>
+            <h3>Clear Shopping Cart?</h3>
+            <p>This will remove all items from your cart.</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelClearCart">Cancel</button>
+                <button class="btn btn-danger" id="confirmClearCart">Clear Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-content modal-content-wide checkout-modal-content">
+            <div class="checkout-modal-header">
+                <div>
+                    <h3>Checkout</h3>
+                    <p>Confirm your delivery details and submit your order.</p>
+                </div>
+                <button class="modal-close-btn" id="closeCheckoutModal" type="button" aria-label="Close checkout">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="checkout-summary" id="checkoutSummary"></div>
+            <form class="checkout-form" id="checkoutForm">
+                <div class="checkout-grid">
+                    <label class="checkout-field">
+                        <span>Full Name</span>
+                        <input type="text" id="checkoutName" required>
+                    </label>
+                    <label class="checkout-field">
+                        <span>Phone</span>
+                        <input type="tel" id="checkoutPhone" placeholder="Optional">
+                    </label>
+                    <label class="checkout-field checkout-field-full">
+                        <span>Address Line 1</span>
+                        <input type="text" id="checkoutAddress1" required>
+                    </label>
+                    <label class="checkout-field checkout-field-full">
+                        <span>Address Line 2</span>
+                        <input type="text" id="checkoutAddress2" placeholder="Apartment, suite, etc. (optional)">
+                    </label>
+                    <label class="checkout-field">
+                        <span>City</span>
+                        <input type="text" id="checkoutCity" required>
+                    </label>
+                    <label class="checkout-field">
+                        <span>Postal Code</span>
+                        <input type="text" id="checkoutPostalCode" placeholder="Optional">
+                    </label>
+                    <label class="checkout-field checkout-field-full">
+                        <span>Order Note</span>
+                        <textarea id="checkoutNote" rows="3" placeholder="Optional care or delivery note"></textarea>
+                    </label>
+                </div>
+                <div class="modal-actions checkout-actions">
+                    <button class="btn btn-secondary" id="cancelCheckout" type="button">Cancel</button>
+                    <button class="btn btn-primary" id="confirmCheckout" type="submit">Place Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-placeholder"></div>
+
+    <div class="page-transition"></div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/user.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>

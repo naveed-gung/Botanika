@@ -1,0 +1,62 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Botanika GitHub Showcase</title>
+  <desc id="desc">A polished botanical showcase banner for the Botanika storefront project.</desc>
+  <defs>
+    <linearGradient id="bg" x1="104" y1="48" x2="1184" y2="592" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5EFE6"/>
+      <stop offset="1" stop-color="#E0D1BC"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="810" y1="146" x2="1130" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#314230"/>
+      <stop offset="1" stop-color="#1F2A20"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="190" y1="162" x2="570" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8A9A5B"/>
+      <stop offset="1" stop-color="#5F7340"/>
+    </linearGradient>
+    <filter id="shadow" x="718" y="90" width="430" height="408" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dx="-18" dy="18"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.113725 0 0 0 0 0.145098 0 0 0 0 0.121569 0 0 0 0.24 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="640" rx="36" fill="url(#bg)"/>
+  <path d="M102 520C201 446 255 394 335 255C394 153 495 109 618 113" stroke="#C17C54" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" opacity="0.58"/>
+  <path d="M115 564C210 498 296 449 394 365C477 294 604 219 747 214" stroke="#8A9A5B" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  <g opacity="0.85">
+    <path d="M151 452C198 353 301 275 392 222C432 291 428 376 389 450C319 485 228 486 151 452Z" fill="url(#accent)"/>
+    <path d="M231 431C283 375 337 317 392 222" stroke="#F8F3EC" stroke-width="3" stroke-linecap="round"/>
+    <path d="M273 403C254 372 218 345 185 334" stroke="#F8F3EC" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M314 356C323 326 352 282 382 256" stroke="#F8F3EC" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <g opacity="0.9">
+    <path d="M292 525C347 468 444 422 544 408C556 472 534 536 484 580C420 590 347 572 292 525Z" fill="#314230"/>
+    <path d="M350 530C399 497 458 450 544 408" stroke="#D7C3A4" stroke-width="3" stroke-linecap="round"/>
+    <path d="M404 500C388 472 357 448 330 440" stroke="#D7C3A4" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M444 469C458 452 487 429 522 420" stroke="#D7C3A4" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+  <circle cx="980" cy="128" r="66" fill="#FFFFFF" fill-opacity="0.28"/>
+  <circle cx="1070" cy="508" r="120" fill="#FFFFFF" fill-opacity="0.16"/>
+  <g filter="url(#shadow)">
+    <rect x="784" y="120" width="320" height="300" rx="30" fill="url(#panel)"/>
+    <rect x="820" y="156" width="248" height="22" rx="11" fill="#50634A"/>
+    <rect x="820" y="198" width="120" height="120" rx="22" fill="#D8C6A9"/>
+    <path d="M840 260C865 213 909 189 947 194C950 236 929 287 892 312C867 317 848 290 840 260Z" fill="#8A9A5B"/>
+    <path d="M880 302C890 269 913 229 947 194" stroke="#F5EFE6" stroke-width="3" stroke-linecap="round"/>
+    <rect x="962" y="201" width="74" height="14" rx="7" fill="#D8C6A9" fill-opacity="0.92"/>
+    <rect x="962" y="228" width="96" height="10" rx="5" fill="#B8C59D" fill-opacity="0.9"/>
+    <rect x="820" y="342" width="238" height="12" rx="6" fill="#50634A"/>
+    <rect x="820" y="366" width="184" height="10" rx="5" fill="#41553D"/>
+  </g>
+  <text x="118" y="166" fill="#314230" font-family="Georgia, 'Times New Roman', serif" font-size="78" letter-spacing="-2">BOTANIKA</text>
+  <text x="120" y="220" fill="#5F6B55" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="22" letter-spacing="5">CURATED BOTANICAL COMMERCE EXPERIENCE</text>
+  <text x="120" y="316" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">Responsive storefront, Firebase-backed admin,</text>
+  <text x="120" y="360" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">customer profiles, featured collections,</text>
+  <text x="120" y="404" fill="#314230" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="30">and inline base64 media handling.</text>
+  <text x="120" y="524" fill="#8A9A5B" font-family="'Trebuchet MS', 'Segoe UI', sans-serif" font-size="20" letter-spacing="2.8">SHOP  •  ADMIN  •  USER DASHBOARD  •  CHAT ASSISTANT</text>
+</svg>

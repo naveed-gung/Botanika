@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://botanika.netlify.app/sitemap.xml

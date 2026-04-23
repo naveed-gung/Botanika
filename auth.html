@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOTANIKA | Welcome</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="texture-overlay"></div>
+    
+    <!-- Back to home -->
+    <a href="index.html" class="back-home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back to Home</span>
+    </a>
+
+    <main class="auth-container">
+        <!-- Left Panel - Register -->
+        <div class="auth-panel register-panel" id="registerPanel">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-small">
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
+                        </svg>
+                    </div>
+                    <h2>Create Account</h2>
+                    <p>Join our botanical community</p>
+                </div>
+                
+                <form class="auth-form" id="registerForm">
+                    <div class="form-group">
+                        <input type="text" id="regName" name="name" required autocomplete="name">
+                        <label for="regName">Full Name</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" id="regEmail" name="email" required autocomplete="email">
+                        <label for="regEmail">Email Address</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="password" id="regPassword" name="password" required autocomplete="new-password">
+                        <label for="regPassword">Password</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="password" id="regConfirmPassword" name="confirmPassword" required autocomplete="new-password">
+                        <label for="regConfirmPassword">Confirm Password</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Create Account</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Already have an account?</p>
+                    <button class="switch-btn" id="showLogin">Sign In</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login -->
+        <div class="auth-panel login-panel" id="loginPanel">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-small">
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
+                        </svg>
+                    </div>
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to continue</p>
+                </div>
+                
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <input type="email" id="loginEmail" name="email" required autocomplete="email">
+                        <label for="loginEmail">Email Address</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-line"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>Sign In</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account?</p>
+                    <button class="switch-btn" id="showRegister">Create One</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="auth-decoration">
+            <svg class="deco-leaf deco-leaf-1" viewBox="0 0 100 100">
+                <path d="M50 10 Q80 30 70 70 Q50 90 30 70 Q20 30 50 10" fill="none" stroke="#8A9A5B" stroke-width="1" opacity="0.3"/>
+            </svg>
+            <svg class="deco-leaf deco-leaf-2" viewBox="0 0 100 100">
+                <path d="M50 10 Q80 30 70 70 Q50 90 30 70 Q20 30 50 10" fill="none" stroke="#8A9A5B" stroke-width="1" opacity="0.2"/>
+            </svg>
+        </div>
+    </main>
+
+    <div class="footer-placeholder"></div>
+
+    <div class="page-transition"></div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
