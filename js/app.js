@@ -1,6 +1,7 @@
 const BOTANIKA = {
     STORAGE_KEYS: {
-        CURRENT_USER: 'botanika_current_user'
+        CURRENT_USER: 'botanika_current_user',
+        EMAIL_LINK_EMAIL: 'botanika_email_link_email'
     },
 
     COLLECTIONS: {
@@ -148,8 +149,9 @@ const FirebaseService = {
 
             await this.waitForInitialAuthState();
             await this.ensureSeedData();
-            await this.refreshAll();
+            await this.refreshProducts();
             await this.syncCurrentUserFromAuth(this.auth.currentUser);
+            await this.refreshScopedData();
             this.attachAuthListener();
             this.subscribeToRealtimeData();
 
@@ -177,6 +179,8 @@ const FirebaseService = {
     attachAuthListener() {
         this.auth.onAuthStateChanged(async authUser => {
             await this.syncCurrentUserFromAuth(authUser);
+            await this.refreshScopedData();
+            this.subscribeToRealtimeData();
         });
     },
 
@@ -255,19 +259,42 @@ const FirebaseService = {
 
     async refreshAll() {
         await Promise.all([
-            this.refreshUsers(),
             this.refreshProducts(),
+            this.refreshUsers(),
+            this.refreshCarts(),
+            this.refreshOrders()
+        ]);
+    },
+
+    async refreshScopedData() {
+        await Promise.all([
+            this.refreshUsers(),
             this.refreshCarts(),
             this.refreshOrders()
         ]);
     },
 
     async refreshUsers() {
-        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).get();
+        const authUser = this.auth ? this.auth.currentUser : null;
 
-        this.cache.users = snapshot.docs
-            .map(doc => this.normalizeRecord(doc))
-            .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+        if (!authUser) {
+            this.cache.users = [];
+            return this.cache.users;
+        }
+
+        if (this.currentUser && this.currentUser.isAdmin) {
+            const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).get();
+
+            this.cache.users = snapshot.docs
+                .map(doc => this.normalizeRecord(doc))
+                .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+
+            return this.cache.users;
+        }
+
+        const profileDoc = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(authUser.uid).get();
+
+        this.cache.users = profileDoc.exists ? [this.normalizeRecord(profileDoc)] : [];
 
         return this.cache.users;
     },
@@ -283,20 +310,38 @@ const FirebaseService = {
     },
 
     async refreshCarts() {
-        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.CARTS).get();
+        const authUser = this.auth ? this.auth.currentUser : null;
         const carts = {};
 
-        snapshot.docs.forEach(doc => {
-            const data = this.normalizeRecord(doc);
-            carts[doc.id] = Array.isArray(data.items) ? data.items : [];
-        });
+        if (!authUser) {
+            this.cache.carts = carts;
+            return this.cache.carts;
+        }
+
+        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.CARTS).doc(authUser.uid).get();
+
+        if (snapshot.exists) {
+            const data = this.normalizeRecord(snapshot);
+            carts[authUser.uid] = Array.isArray(data.items) ? data.items : [];
+        }
 
         this.cache.carts = carts;
         return this.cache.carts;
     },
 
     async refreshOrders() {
-        const snapshot = await this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).get();
+        const authUser = this.auth ? this.auth.currentUser : null;
+
+        if (!authUser) {
+            this.cache.orders = [];
+            return this.cache.orders;
+        }
+
+        const query = this.currentUser && this.currentUser.isAdmin
+            ? this.db.collection(BOTANIKA.COLLECTIONS.ORDERS)
+            : this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).where('userId', '==', authUser.uid);
+
+        const snapshot = await query.get();
 
         this.cache.orders = snapshot.docs
             .map(doc => this.normalizeRecord(doc))
@@ -306,54 +351,103 @@ const FirebaseService = {
     },
 
     subscribeToRealtimeData() {
-        if (this.listenersInitialized) {
-            return;
-        }
+        const authUser = this.auth ? this.auth.currentUser : null;
+
+        this.resetSubscriptions();
 
         this.listenersInitialized = true;
 
         this.subscriptions.push(
-            this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).onSnapshot(snapshot => {
-                this.cache.products = snapshot.docs
-                    .map(doc => this.normalizeRecord(doc))
-                    .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+            this.db.collection(BOTANIKA.COLLECTIONS.PRODUCTS).onSnapshot(
+                snapshot => {
+                    this.cache.products = snapshot.docs
+                        .map(doc => this.normalizeRecord(doc))
+                        .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
 
-                this.emit('botanika:products-updated', this.cache.products);
-            })
+                    this.emit('botanika:products-updated', this.cache.products);
+                },
+                error => this.handleRealtimeError('products', error)
+            )
+        );
+
+        if (!authUser) {
+            this.cache.users = [];
+            this.cache.carts = {};
+            this.cache.orders = [];
+            this.emit('botanika:users-updated', []);
+            this.emit('botanika:carts-updated', this.cache.carts);
+            this.emit('botanika:orders-updated', this.cache.orders);
+            return;
+        }
+
+        this.subscriptions.push(
+            this.db.collection(BOTANIKA.COLLECTIONS.CARTS).doc(authUser.uid).onSnapshot(
+                snapshot => {
+                    const carts = {};
+
+                    if (snapshot.exists) {
+                        const data = this.normalizeRecord(snapshot);
+                        carts[authUser.uid] = Array.isArray(data.items) ? data.items : [];
+                    }
+
+                    this.cache.carts = carts;
+                    this.emit('botanika:carts-updated', this.cache.carts);
+                },
+                error => this.handleRealtimeError('carts', error)
+            )
+        );
+
+        if (this.currentUser && this.currentUser.isAdmin) {
+            this.subscriptions.push(
+                this.db.collection(BOTANIKA.COLLECTIONS.USERS).onSnapshot(
+                    snapshot => {
+                        this.cache.users = snapshot.docs
+                            .map(doc => this.normalizeRecord(doc))
+                            .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
+
+                        this.emit('botanika:users-updated', this.cache.users.map(user => this.toSafeUser(user)));
+                    },
+                    error => this.handleRealtimeError('users', error)
+                )
+            );
+
+            this.subscriptions.push(
+                this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).onSnapshot(
+                    snapshot => {
+                        this.cache.orders = snapshot.docs
+                            .map(doc => this.normalizeRecord(doc))
+                            .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
+
+                        this.emit('botanika:orders-updated', this.cache.orders);
+                    },
+                    error => this.handleRealtimeError('orders', error)
+                )
+            );
+
+            return;
+        }
+
+        this.subscriptions.push(
+            this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(authUser.uid).onSnapshot(
+                snapshot => {
+                    this.cache.users = snapshot.exists ? [this.normalizeRecord(snapshot)] : [];
+                    this.emit('botanika:users-updated', this.cache.users.map(user => this.toSafeUser(user)));
+                },
+                error => this.handleRealtimeError('users', error)
+            )
         );
 
         this.subscriptions.push(
-            this.db.collection(BOTANIKA.COLLECTIONS.CARTS).onSnapshot(snapshot => {
-                const carts = {};
+            this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).where('userId', '==', authUser.uid).onSnapshot(
+                snapshot => {
+                    this.cache.orders = snapshot.docs
+                        .map(doc => this.normalizeRecord(doc))
+                        .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
 
-                snapshot.docs.forEach(doc => {
-                    const data = this.normalizeRecord(doc);
-                    carts[doc.id] = Array.isArray(data.items) ? data.items : [];
-                });
-
-                this.cache.carts = carts;
-                this.emit('botanika:carts-updated', this.cache.carts);
-            })
-        );
-
-        this.subscriptions.push(
-            this.db.collection(BOTANIKA.COLLECTIONS.USERS).onSnapshot(snapshot => {
-                this.cache.users = snapshot.docs
-                    .map(doc => this.normalizeRecord(doc))
-                    .sort((left, right) => new Date(left.createdAt || 0) - new Date(right.createdAt || 0));
-
-                this.emit('botanika:users-updated', this.cache.users.map(user => this.toSafeUser(user)));
-            })
-        );
-
-        this.subscriptions.push(
-            this.db.collection(BOTANIKA.COLLECTIONS.ORDERS).onSnapshot(snapshot => {
-                this.cache.orders = snapshot.docs
-                    .map(doc => this.normalizeRecord(doc))
-                    .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
-
-                this.emit('botanika:orders-updated', this.cache.orders);
-            })
+                    this.emit('botanika:orders-updated', this.cache.orders);
+                },
+                error => this.handleRealtimeError('orders', error)
+            )
         );
     },
 
@@ -371,19 +465,40 @@ const FirebaseService = {
             const profileDoc = await this.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(authUser.uid).get();
 
             if (!profileDoc.exists) {
-                await this.auth.signOut();
-                return null;
+                profile = await this.createProfileFromAuthUser(authUser);
+            } else {
+                profile = this.normalizeRecord(profileDoc);
             }
-
-            profile = this.normalizeRecord(profileDoc);
-            this.upsertCacheRecord('users', profile);
         }
+
+        this.upsertCacheRecord('users', profile);
 
         const safeUser = this.toSafeUser(profile);
         this.currentUser = safeUser;
         SessionStore.set(BOTANIKA.STORAGE_KEYS.CURRENT_USER, safeUser);
         this.emit('botanika:user-changed', safeUser);
         return safeUser;
+    },
+
+    async createProfileFromAuthUser(authUser) {
+        const email = (authUser.email || '').trim().toLowerCase();
+
+        if (!email) {
+            await this.auth.signOut();
+            return null;
+        }
+
+        const fallbackName = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+        const formattedName = authUser.displayName || fallbackName.replace(/\b\w/g, character => character.toUpperCase()) || 'Botanika Customer';
+
+        await this.createUserProfile(authUser.uid, {
+            name: formattedName,
+            email,
+            isAdmin: false,
+            avatar: authUser.photoURL || ''
+        });
+
+        return this.cache.users.find(user => user.id === authUser.uid) || null;
     },
 
     async findUserByEmail(email) {
@@ -630,6 +745,10 @@ const FirebaseService = {
     },
 
     upsertCacheRecord(key, record) {
+        if (!record) {
+            return;
+        }
+
         const list = this.cache[key];
         const index = list.findIndex(item => item.id === record.id);
 
@@ -642,6 +761,26 @@ const FirebaseService = {
 
     emit(eventName, detail) {
         document.dispatchEvent(new CustomEvent(eventName, { detail }));
+    },
+
+    resetSubscriptions() {
+        this.subscriptions.forEach(unsubscribe => {
+            if (typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        });
+
+        this.subscriptions = [];
+        this.listenersInitialized = false;
+    },
+
+    handleRealtimeError(channel, error) {
+        if (error && error.code === 'permission-denied') {
+            console.warn(`Botanika realtime ${channel} listener skipped due to Firestore permissions.`);
+            return;
+        }
+
+        console.error(`Botanika realtime ${channel} listener failed.`, error);
     }
 };
 
@@ -721,6 +860,78 @@ const UserManager = {
         }
     },
 
+    async loginWithGoogle() {
+        await FirebaseService.init();
+
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
+            const credentials = await FirebaseService.auth.signInWithPopup(provider);
+            const safeUser = await FirebaseService.syncCurrentUserFromAuth(credentials.user);
+
+            if (!safeUser) {
+                return { success: false, message: 'Unable to load your Botanika profile' };
+            }
+
+            return { success: true, user: safeUser };
+        } catch (error) {
+            return { success: false, message: this.getAuthErrorMessage(error) };
+        }
+    },
+
+    async sendEmailLink(email) {
+        await FirebaseService.init();
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!normalizedEmail) {
+            return { success: false, message: 'Please enter a valid email address' };
+        }
+
+        try {
+            await FirebaseService.auth.sendSignInLinkToEmail(normalizedEmail, {
+                url: window.location.href.split('#')[0],
+                handleCodeInApp: true
+            });
+
+            window.localStorage.setItem(BOTANIKA.STORAGE_KEYS.EMAIL_LINK_EMAIL, normalizedEmail);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: this.getAuthErrorMessage(error) };
+        }
+    },
+
+    isEmailLinkSignIn(url = window.location.href) {
+        return FirebaseService.auth ? FirebaseService.auth.isSignInWithEmailLink(url) : false;
+    },
+
+    async completeEmailLinkSignIn(email = null, url = window.location.href) {
+        await FirebaseService.init();
+
+        const storedEmail = window.localStorage.getItem(BOTANIKA.STORAGE_KEYS.EMAIL_LINK_EMAIL) || '';
+        const targetEmail = (email || storedEmail).trim().toLowerCase();
+
+        if (!targetEmail) {
+            return { success: false, message: 'Enter your email to finish the sign-in link flow' };
+        }
+
+        try {
+            const credentials = await FirebaseService.auth.signInWithEmailLink(targetEmail, url);
+            window.localStorage.removeItem(BOTANIKA.STORAGE_KEYS.EMAIL_LINK_EMAIL);
+
+            const safeUser = await FirebaseService.syncCurrentUserFromAuth(credentials.user);
+
+            if (!safeUser) {
+                return { success: false, message: 'Unable to load your Botanika profile' };
+            }
+
+            return { success: true, user: safeUser };
+        } catch (error) {
+            return { success: false, message: this.getAuthErrorMessage(error) };
+        }
+    },
+
     async updateProfile(userId, updates) {
         await FirebaseService.init();
         const nextUser = await FirebaseService.updateUserProfile(userId, updates);
@@ -780,6 +991,22 @@ const UserManager = {
 
         if (code === 'auth/weak-password') {
             return 'Password must be at least 6 characters';
+        }
+
+        if (code === 'auth/popup-closed-by-user') {
+            return 'Google sign-in was cancelled before it finished';
+        }
+
+        if (code === 'auth/account-exists-with-different-credential') {
+            return 'That email already uses a different sign-in method';
+        }
+
+        if (code === 'auth/operation-not-allowed') {
+            return 'This sign-in method is not enabled in Firebase Auth';
+        }
+
+        if (code === 'auth/invalid-action-code' || code === 'auth/expired-action-code') {
+            return 'This sign-in link is invalid or has expired';
         }
 
         return 'Something went wrong. Please try again.';
