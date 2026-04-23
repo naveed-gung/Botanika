@@ -1,48 +1,55 @@
 # Botanika
 
-Botanika is a responsive multi-page plant storefront built with plain HTML, CSS, and JavaScript, using Firebase Auth and Firestore as a lightweight backend.
+![Botanika showcase](github-showcase.svg)
 
-## What It Includes
+Botanika is a polished multi-page botanical storefront built with plain HTML, CSS, and JavaScript, backed by Firebase Auth and Firestore for lightweight realtime commerce flows.
 
-- Firebase-backed auth, profile management, carts, products, and orders
-- Admin dashboard with realtime inventory updates and inventory filters
-- Customer account page with profile editing, password reset, checkout, and order history
-- Base64 image uploads for admin products and customer avatars
-- Static hosting friendly structure for Netlify deployment
+## Highlights
 
-## Pages
+- Realtime product, cart, profile, and order flows powered by Firebase
+- Split customer and admin surfaces with inventory management and featured products
+- Password reset, Google sign-in, and passwordless email-link sign-in support
+- Base64 media uploads for product imagery and customer avatars with a 1 MB cap
+- Static-hosting friendly deployment for Netlify
 
-- `index.html`: landing page and featured products
-- `shop.html`: storefront and cart drawer
-- `auth.html`: login and registration
-- `user.html`: customer dashboard, checkout, and order history
-- `admin.html`: admin inventory and user management
+## Experience Map
 
-## Firebase Setup
+- `index.html`: editorial landing page with featured products and brand storytelling
+- `shop.html`: storefront, filters, cart drawer, and customer purchase flow
+- `auth.html`: account creation, sign-in, Google auth, and magic-link entry point
+- `user.html`: profile management, checkout form, and order history
+- `admin.html`: product management, user visibility, and featured inventory controls
+
+## Local Firebase Setup
 
 1. Copy `js/firebase.config.example.js` to `js/firebase.config.js`.
-2. Replace the placeholder config with your Firebase project values.
-3. Enable Email/Password authentication in Firebase Auth.
-4. Create a Firestore database in production or test mode.
+2. Paste in your Firebase project values.
+3. Enable these providers in Firebase Auth:
+ `Email/Password`, `Google`, and `Email link (passwordless sign-in)`.
+4. Create Firestore and apply security rules that allow public product reads, user-scoped carts/orders, and admin-only inventory management.
 
-`js/firebase.config.js` is ignored by git and should stay local.
+`js/firebase.config.js` stays local and is already ignored by git.
 
-## Default Admin Account
+## Seeded Admin Account
 
-The app seeds a default admin account:
+The app seeds a default admin profile for first-run setup:
 
 - Email: `admin@botanika.com`
 - Password: `BotanikaAdmin!2026`
 
-Change or remove these credentials before using the site in production.
+Rotate or remove that account before using the project as a real storefront.
 
-## Image Limits
+## Media Limits
 
-- Product uploads: 1 MB max
-- Profile avatar uploads: 1 MB max
+- Product uploads: 1 MB maximum
+- Avatar uploads: 1 MB maximum
 
-Uploaded images are stored as base64 strings in Firestore.
+Uploads are stored as base64 strings in Firestore, which keeps the project serverless but makes file size limits important.
 
 ## Deployment
 
-This project is configured for static deployment on Netlify. If you deploy to a different URL, update `robots.txt` and `sitemap.xml` to match the final production domain.
+The current linked Netlify site is:
+
+- `https://botanika-754.netlify.app`
+
+If you move the site to a different domain, update `robots.txt` and `sitemap.xml` to match the final URL before publishing.

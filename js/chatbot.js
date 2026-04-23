@@ -355,13 +355,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.body.classList.contains('shop-page') || 
-        document.body.classList.contains('user-page') ||
-        document.querySelector('.shop-page') ||
-        document.querySelector('.user-page')) {
-        setTimeout(() => BotanikaBot.init(), 500);
-    }
-});
-
 window.BotanikaBot = BotanikaBot;
