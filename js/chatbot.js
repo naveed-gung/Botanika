@@ -4,6 +4,7 @@ const BotanikaBot = {
     products: [],
     isRendered: false,
     dataReady: false,
+    lastAdminIntent: null,
 
     async init() {
         if (!this.isRendered) {
@@ -335,19 +336,28 @@ const BotanikaBot = {
         }
 
         if (this.isAdminMode()) {
+            if ((q.includes('who ordered') || q.includes('names of the clients') || q.includes('clients that ordered') || q.includes('customers that ordered') || q.includes('who bought') || ((q.includes('name') || q.includes('names')) && (q.includes('ordered') || q.includes('bought') || q.includes('purchase')))) || (this.lastAdminIntent === 'customer-summary' && (q.includes('name') || q.includes('names')) && (q.includes('ordered') || q.includes('bought') || q.includes('purchase') || q.includes('who')))) {
+                this.lastAdminIntent = 'ordered-customers';
+                return this.getCustomersWithOrdersReport();
+            }
+
             if (q.includes('inventory value') || q.includes('inventory overview') || q.includes('stock summary') || q.includes('total inventory')) {
+                this.lastAdminIntent = 'inventory';
                 return this.getInventoryOverview();
             }
 
             if (q.includes('most bought') || q.includes('top product') || q.includes('best selling') || q.includes('bought the most')) {
+                this.lastAdminIntent = 'top-products';
                 return this.getTopProductsReport();
             }
 
             if (q.includes('inactive user') || q.includes('didn') || q.includes('long time') || q.includes('no order') || q.includes('no purchase')) {
+                this.lastAdminIntent = 'inactive-users';
                 return this.getInactiveUsersReport();
             }
 
             if (q.includes('customer') || q.includes('client') || q.includes('users')) {
+                this.lastAdminIntent = 'customer-summary';
                 return this.getCustomerSummary();
             }
         }
@@ -447,6 +457,8 @@ const BotanikaBot = {
 
     getCustomerSummary() {
         const snapshot = BotanikaInsights.getSnapshot();
+        const customersWithOrders = this.getCustomersWithOrders(snapshot);
+        const customersWithoutOrders = snapshot.dormantUsers.filter(user => user.hasNeverOrdered);
 
         if (!snapshot.users.length) {
             return 'No client profiles are available yet.';
@@ -455,8 +467,46 @@ const BotanikaBot = {
         return [
             `Registered clients: ${snapshot.users.length}`,
             `Clients with at least one order: ${snapshot.activeCustomers}`,
-            `Clients with no order yet: ${snapshot.dormantUsers.filter(user => user.hasNeverOrdered).length}`
+            `Clients with no order yet: ${customersWithoutOrders.length}`,
+            customersWithOrders.length
+                ? `Ordered clients: ${customersWithOrders.map(user => user.name).join(', ')}`
+                : 'Ordered clients: none yet'
         ].join('\n');
+    },
+
+    getCustomersWithOrders(snapshot = BotanikaInsights.getSnapshot()) {
+        return snapshot.users
+            .map(user => {
+                const userOrders = snapshot.orders.filter(order => order.userId === user.id || order.customerEmail === user.email);
+                const lastOrder = userOrders
+                    .slice()
+                    .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0))[0] || null;
+
+                return {
+                    ...user,
+                    orderCount: userOrders.length,
+                    lastOrder
+                };
+            })
+            .filter(user => user.orderCount > 0)
+            .sort((left, right) => right.orderCount - left.orderCount || left.name.localeCompare(right.name));
+    },
+
+    getCustomersWithOrdersReport() {
+        const snapshot = BotanikaInsights.getSnapshot();
+        const customersWithOrders = this.getCustomersWithOrders(snapshot);
+
+        if (!customersWithOrders.length) {
+            return 'No clients have placed an order yet.';
+        }
+
+        return `Clients who already ordered:\n\n${customersWithOrders.map(user => {
+            const lastOrderDate = user.lastOrder?.createdAt
+                ? new Date(user.lastOrder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'unknown date';
+
+            return `• ${user.name} - ${user.orderCount} order${user.orderCount === 1 ? '' : 's'} (last order ${lastOrderDate})`;
+        }).join('\n')}`;
     },
     
     getCategoryResponse() {
