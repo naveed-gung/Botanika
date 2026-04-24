@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loginForm = document.getElementById('loginForm');
     const registerGoogleBtn = document.getElementById('registerGoogleBtn');
     const loginGoogleBtn = document.getElementById('loginGoogleBtn');
-    const registerMagicLinkBtn = document.getElementById('registerMagicLinkBtn');
     const loginMagicLinkBtn = document.getElementById('loginMagicLinkBtn');
     const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
     const emailLinkBanner = document.getElementById('emailLinkBanner');
@@ -144,12 +143,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (loginGoogleBtn) {
         loginGoogleBtn.addEventListener('click', handleGoogleLogin);
-    }
-
-    if (registerMagicLinkBtn) {
-        registerMagicLinkBtn.addEventListener('click', () => {
-            handleMagicLink(document.getElementById('regEmail').value.trim());
-        });
     }
 
     if (loginMagicLinkBtn) {

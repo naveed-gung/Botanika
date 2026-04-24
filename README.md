@@ -37,11 +37,12 @@ Firebase Storage is intentionally not used in this project.
 
 ## Admin Setup
 
-This version does not auto-seed an admin from the browser.
+The project now seeds a default Firebase Auth admin account in the browser using:
 
-Create a normal account first, then set `isAdmin: true` on that user document in Firestore to unlock the admin dashboard.
+- Email: `admin@botanika.com`
+- Password: `Botanika2026`
 
-That keeps the project compatible with Firestore rules and avoids unsafe browser-side seeding.
+To let that account manage products and users, publish the included `firestore.rules` file so the default admin email is treated as an admin on the Firestore side too.
 
 ## Media Limits
 

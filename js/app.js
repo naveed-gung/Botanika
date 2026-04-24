@@ -14,7 +14,7 @@ const BOTANIKA = {
     DEFAULT_ADMIN: {
         name: 'Botanika Admin',
         email: 'admin@botanika.com',
-        password: 'BotanikaAdmin!2026',
+        password: 'Botanika2026',
         isAdmin: true,
         avatar: ''
     },
@@ -147,6 +147,7 @@ const FirebaseService = {
             this.auth = firebase.auth();
             this.db = firebase.firestore();
 
+            await this.ensureDefaultAdminAccount();
             await this.waitForInitialAuthState();
             await this.refreshProducts();
             await this.syncCurrentUserFromAuth(this.auth.currentUser);
@@ -173,6 +174,66 @@ const FirebaseService = {
         });
 
         return this.authBootstrapPromise;
+    },
+
+    async ensureDefaultAdminAccount() {
+        const apiKey = window.BOTANIKA_FIREBASE_CONFIG && window.BOTANIKA_FIREBASE_CONFIG.apiKey;
+        const adminEmail = BOTANIKA.DEFAULT_ADMIN.email.trim().toLowerCase();
+        const adminPassword = BOTANIKA.DEFAULT_ADMIN.password;
+
+        if (!apiKey || !adminEmail || !adminPassword) {
+            return;
+        }
+
+        const authEndpoint = action => `https://identitytoolkit.googleapis.com/v1/accounts:${action}?key=${apiKey}`;
+        const payload = {
+            email: adminEmail,
+            password: adminPassword,
+            returnSecureToken: true
+        };
+
+        try {
+            const signInResponse = await fetch(authEndpoint('signInWithPassword'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (signInResponse.ok) {
+                return;
+            }
+
+            const signInResult = await signInResponse.json().catch(() => ({}));
+            const signInCode = signInResult && signInResult.error ? signInResult.error.message : '';
+
+            if (signInCode !== 'EMAIL_NOT_FOUND' && signInCode !== 'INVALID_LOGIN_CREDENTIALS' && signInCode !== 'INVALID_PASSWORD') {
+                console.warn('Botanika default admin check failed.', signInResult);
+                return;
+            }
+
+            const signUpResponse = await fetch(authEndpoint('signUp'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (signUpResponse.ok) {
+                console.info('Botanika default admin account seeded.');
+                return;
+            }
+
+            const signUpResult = await signUpResponse.json().catch(() => ({}));
+            const signUpCode = signUpResult && signUpResult.error ? signUpResult.error.message : '';
+
+            if (signUpCode === 'EMAIL_EXISTS') {
+                console.warn('The default admin email already exists with different credentials. Update it manually in Firebase Auth if needed.');
+                return;
+            }
+
+            console.warn('Botanika default admin seed failed.', signUpResult);
+        } catch (error) {
+            console.warn('Botanika default admin seed request failed.', error);
+        }
     },
 
     attachAuthListener() {
@@ -429,6 +490,16 @@ const FirebaseService = {
             }
         }
 
+        const isDefaultAdmin = (authUser.email || '').trim().toLowerCase() === BOTANIKA.DEFAULT_ADMIN.email.trim().toLowerCase();
+
+        if (profile && isDefaultAdmin) {
+            profile = {
+                ...profile,
+                name: BOTANIKA.DEFAULT_ADMIN.name,
+                isAdmin: true
+            };
+        }
+
         this.upsertCacheRecord('users', profile);
 
         const safeUser = this.toSafeUser(profile);
@@ -440,6 +511,8 @@ const FirebaseService = {
 
     async createProfileFromAuthUser(authUser) {
         const email = (authUser.email || '').trim().toLowerCase();
+        const defaultAdminEmail = BOTANIKA.DEFAULT_ADMIN.email.trim().toLowerCase();
+        const isDefaultAdmin = email === defaultAdminEmail;
 
         if (!email) {
             await this.auth.signOut();
@@ -447,12 +520,14 @@ const FirebaseService = {
         }
 
         const fallbackName = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-        const formattedName = authUser.displayName || fallbackName.replace(/\b\w/g, character => character.toUpperCase()) || 'Botanika Customer';
+        const formattedName = isDefaultAdmin
+            ? BOTANIKA.DEFAULT_ADMIN.name
+            : authUser.displayName || fallbackName.replace(/\b\w/g, character => character.toUpperCase()) || 'Botanika Customer';
 
         await this.createUserProfile(authUser.uid, {
             name: formattedName,
             email,
-            isAdmin: false,
+            isAdmin: isDefaultAdmin,
             avatar: authUser.photoURL || ''
         });
 
@@ -843,6 +918,12 @@ const UserManager = {
         }
 
         try {
+            const signInMethods = await FirebaseService.auth.fetchSignInMethodsForEmail(normalizedEmail);
+
+            if (!signInMethods.length) {
+                return { success: false, message: 'Create an account first. Magic links are only available for sign in.' };
+            }
+
             await FirebaseService.auth.sendSignInLinkToEmail(normalizedEmail, {
                 url: window.location.href.split('#')[0],
                 handleCodeInApp: true
@@ -870,6 +951,12 @@ const UserManager = {
         }
 
         try {
+            const signInMethods = await FirebaseService.auth.fetchSignInMethodsForEmail(targetEmail);
+
+            if (!signInMethods.length) {
+                return { success: false, message: 'No existing Botanika account matches that email address.' };
+            }
+
             const credentials = await FirebaseService.auth.signInWithEmailLink(targetEmail, url);
             window.localStorage.removeItem(BOTANIKA.STORAGE_KEYS.EMAIL_LINK_EMAIL);
 

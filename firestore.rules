@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isDefaultAdminEmail() {
+      return signedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email == 'admin@botanika.com';
+    }
+
+    function isStoredAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    function isAdmin() {
+      return isDefaultAdminEmail() || isStoredAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow create: if owns(userId)
+        && request.resource.data.email is string
+        && request.resource.data.name is string
+        && request.resource.data.avatar is string
+        && (
+          request.resource.data.isAdmin == false
+          || (
+            isDefaultAdminEmail()
+            && request.resource.data.email == 'admin@botanika.com'
+            && request.resource.data.isAdmin == true
+          )
+        );
+
+      allow read: if owns(userId) || isAdmin();
+
+      allow update: if isAdmin()
+        || (
+          owns(userId)
+          && request.resource.data.isAdmin == resource.data.isAdmin
+        );
+
+      allow delete: if isAdmin() && request.auth.uid != userId;
+    }
+
+    match /carts/{userId} {
+      allow read, write: if owns(userId) || isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
