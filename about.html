@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BOTANIKA | About</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/info.css">
     <link rel="stylesheet" href="css/chatbot.css">
@@ -14,13 +15,13 @@
     <div class="texture-overlay"></div>
 
     <header class="info-header">
-        <a href="index.html" class="logo">
+        <a href="index.html" class="logo" data-aos="fade-down" data-aos-delay="100">
             <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M12 2C13.5 4.5 17 7 17 11C17 15 14.5 18 12 22M12 2C10.5 4.5 7 7 7 11C7 15 9.5 18 12 22M12 2V22M5 9C7.5 9.5 10 11 12 14M19 9C16.5 9.5 14 11 12 14"/>
             </svg>
             <span class="logo-text">BOTANIKA</span>
         </a>
-        <nav class="info-nav">
+        <nav class="info-nav" data-aos="fade-down" data-aos-delay="180">
             <a href="index.html">Home</a>
             <a href="shop.html">Shop</a>
             <a href="care.html">Care Guides</a>
@@ -31,18 +32,18 @@
     <main>
         <section class="info-hero">
             <div class="info-hero-inner">
-                <div class="info-hero-copy">
+                <div class="info-hero-copy" data-aos="fade-up" data-aos-delay="120">
                     <span class="info-eyebrow">About Botanika</span>
-                    <h1>A botanical storefront shaped like a calm, modern studio.</h1>
-                    <p>Botanika was designed as a college project that treats plants, prints, and home styling as one connected experience. Instead of building a generic store, the project leans into editorial storytelling, a soft natural palette, and a cleaner account flow that feels more like a studio visit than a crowded marketplace.</p>
-                    <p>The goal was to prove that a zero-funded frontend can still deliver thoughtful UX: curated product cards, a protected admin surface, customer profiles, order history, and a Firestore-backed data model that keeps the project lightweight enough for student hosting constraints.</p>
+                    <h1 data-aos="fade-up" data-aos-delay="180">A botanical storefront shaped like a calm, modern studio.</h1>
+                    <p data-aos="fade-up" data-aos-delay="240">Botanika was designed as a college project that treats plants, prints, and home styling as one connected experience. Instead of building a generic store, the project leans into editorial storytelling, a soft natural palette, and a cleaner account flow that feels more like a studio visit than a crowded marketplace.</p>
+                    <p data-aos="fade-up" data-aos-delay="300">The goal was to prove that a zero-funded frontend can still deliver thoughtful UX: curated product cards, a protected admin surface, customer profiles, order history, and a Firestore-backed data model that keeps the project lightweight enough for student hosting constraints.</p>
                 </div>
                 <div class="info-hero-panel">
-                    <div class="info-stat-card">
+                    <div class="info-stat-card" data-aos="fade-left" data-aos-delay="220">
                         <strong>Zero-funded</strong>
                         <p>The project intentionally uses Cloud Firestore only, avoids Firebase Storage, and stores small image uploads as base64 so the whole system can run within a student-friendly budget.</p>
                     </div>
-                    <div class="info-callout">
+                    <div class="info-callout" data-aos="fade-left" data-aos-delay="300">
                         <h3>What the project is trying to show</h3>
                         <ul>
                             <li>A multi-page storefront can still feel premium without a heavy framework.</li>
@@ -56,21 +57,21 @@
 
         <section class="info-section">
             <div class="info-section-inner">
-                <div class="info-section-header">
+            <div class="info-section-header" data-aos="fade-up">
                     <span class="info-eyebrow">Project pillars</span>
                     <h2>Three decisions shaped the entire build.</h2>
                     <p>Every major feature in Botanika had to support one of these goals: a strong presentation layer, a realistic customer journey, and an architecture that is cheap enough to run for a student project.</p>
                 </div>
                 <div class="info-grid">
-                    <article class="info-card">
+                    <article class="info-card" data-aos="fade-up" data-aos-delay="100">
                         <h3>Editorial storefront design</h3>
                         <p>The landing page is built around airy whitespace, restrained motion, and botanical illustration instead of loud ecommerce banners. The interface tries to feel curated rather than cluttered.</p>
                     </article>
-                    <article class="info-card">
+                    <article class="info-card" data-aos="fade-up" data-aos-delay="180">
                         <h3>Real shopping flow</h3>
                         <p>The storefront includes profiles, cart state, order history, admin product control, and provider-based auth so the experience behaves like a real commerce product instead of a static mockup.</p>
                     </article>
-                    <article class="info-card">
+                    <article class="info-card" data-aos="fade-up" data-aos-delay="260">
                         <h3>Budget-aware engineering</h3>
                         <p>Using Firestore only keeps infrastructure simple. The tradeoff is that image size must stay small, security rules matter a lot, and the data model has to be scoped carefully to user ownership.</p>
                     </article>
@@ -80,26 +81,26 @@
 
         <section class="info-section">
             <div class="info-section-inner">
-                <div class="info-section-header">
+            <div class="info-section-header" data-aos="fade-up">
                     <span class="info-eyebrow">Build timeline</span>
                     <h2>How the experience was structured.</h2>
                 </div>
                 <div class="timeline">
-                    <article class="timeline-step">
+                    <article class="timeline-step" data-aos="fade-up" data-aos-delay="100">
                         <span>1</span>
                         <div>
                             <h3>Craft the public brand layer</h3>
                             <p>The project starts with the landing page because it sets tone, hierarchy, typography, and the emotional quality of the brand before any account or admin logic appears.</p>
                         </div>
                     </article>
-                    <article class="timeline-step">
+                    <article class="timeline-step" data-aos="fade-up" data-aos-delay="180">
                         <span>2</span>
                         <div>
                             <h3>Connect customer flows to Firestore</h3>
                             <p>Products, carts, orders, and profiles were moved into Cloud Firestore so that customer state survives refreshes and can later be managed from the admin dashboard.</p>
                         </div>
                     </article>
-                    <article class="timeline-step">
+                    <article class="timeline-step" data-aos="fade-up" data-aos-delay="260">
                         <span>3</span>
                         <div>
                             <h3>Separate the admin surface</h3>
@@ -112,12 +113,12 @@
 
         <section class="info-section">
             <div class="info-section-inner">
-                <div class="info-section-header">
+            <div class="info-section-header" data-aos="fade-up">
                     <span class="info-eyebrow">Technology choices</span>
                     <h2>Chosen for clarity, not trend chasing.</h2>
                 </div>
                 <div class="info-grid two-col">
-                    <article class="info-feature-card">
+                    <article class="info-feature-card" data-aos="fade-up" data-aos-delay="100">
                         <h3>Why plain HTML, CSS, and JavaScript</h3>
                         <ul>
                             <li>The code stays readable for grading, demos, and future iteration.</li>
@@ -125,7 +126,7 @@
                             <li>Each page can be reasoned about without framework-specific tooling.</li>
                         </ul>
                     </article>
-                    <article class="info-feature-card">
+                    <article class="info-feature-card" data-aos="fade-up" data-aos-delay="180">
                         <h3>Why Cloud Firestore only</h3>
                         <ul>
                             <li>No paid infrastructure is required for the current project scope.</li>
@@ -138,7 +139,7 @@
         </section>
 
         <section class="info-closing">
-            <div class="info-closing-inner">
+            <div class="info-closing-inner" data-aos="zoom-in" data-aos-duration="900">
                 <span class="info-eyebrow">Next steps</span>
                 <h2>Explore the project like a user, then like an operator.</h2>
                 <p>You can browse the storefront publicly, review the care guidance, and then move into account creation or admin testing once Firestore rules are published and an admin user has been promoted.</p>
@@ -157,6 +158,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/firebase.config.js"></script>
     <script src="js/app.js"></script>
     <script src="js/chatbot.js"></script>

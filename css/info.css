@@ -192,10 +192,45 @@
     border-radius: calc(var(--radius-xl) + 4px);
     background: linear-gradient(135deg, var(--color-charcoal), #233025);
     color: white;
+    box-shadow: 0 24px 60px rgba(24, 34, 26, 0.18);
+}
+
+.info-closing-inner .info-eyebrow {
+    color: rgba(246, 240, 229, 0.76);
+}
+
+.info-closing-inner h2 {
+    color: #f7f2e8;
+    max-width: 18ch;
+    margin-bottom: var(--space-md);
 }
 
 .info-closing-inner p {
-    color: rgba(255, 255, 255, 0.82);
+    max-width: 60ch;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.info-closing-inner .btn-primary {
+    background-color: #f5ede0;
+    color: #1e2a21;
+    border-color: transparent;
+}
+
+.info-closing-inner .btn-primary:hover {
+    background-color: #ffffff;
+    color: #152018;
+}
+
+.info-closing-inner .btn-secondary {
+    background-color: rgba(247, 242, 232, 0.14);
+    color: #f7f2e8;
+    border-color: rgba(247, 242, 232, 0.36);
+}
+
+.info-closing-inner .btn-secondary:hover {
+    background-color: rgba(247, 242, 232, 0.24);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.62);
 }
 
 .info-actions {

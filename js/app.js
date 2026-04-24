@@ -19,6 +19,81 @@ const BOTANIKA = {
         avatar: ''
     },
 
+    DEMO_USERS: [
+        {
+            name: 'Laila Nasser',
+            email: 'laila.nasser@botanika.com',
+            avatar: '',
+            city: 'Alexandria'
+        },
+        {
+            name: 'Omar Haddad',
+            email: 'omar.haddad@botanika.com',
+            avatar: '',
+            city: 'Cairo'
+        },
+        {
+            name: 'Sara Khalil',
+            email: 'sara.khalil@botanika.com',
+            avatar: '',
+            city: 'Giza'
+        },
+        {
+            name: 'Yusuf Ali',
+            email: 'yusuf.ali@botanika.com',
+            avatar: '',
+            city: 'Mansoura'
+        }
+    ],
+
+    DEMO_ORDERS: [
+        {
+            id: 'seed_order_laila_001',
+            orderNumber: 'BOT-SEED-1001',
+            userEmail: 'laila.nasser@botanika.com',
+            productQuantities: [
+                { productId: 'prod_001', quantity: 1 },
+                { productId: 'prod_004', quantity: 1 }
+            ],
+            createdAt: '2026-04-18T10:15:00.000Z',
+            phone: '+20 100 555 1001',
+            addressLine1: '12 Garden View Street',
+            city: 'Alexandria',
+            postalCode: '21500',
+            note: 'Seeded showroom order'
+        },
+        {
+            id: 'seed_order_omar_001',
+            orderNumber: 'BOT-SEED-1002',
+            userEmail: 'omar.haddad@botanika.com',
+            productQuantities: [
+                { productId: 'prod_002', quantity: 1 },
+                { productId: 'prod_006', quantity: 2 }
+            ],
+            createdAt: '2026-01-08T14:40:00.000Z',
+            phone: '+20 100 555 1002',
+            addressLine1: '44 Palm Residence',
+            city: 'Cairo',
+            postalCode: '11511',
+            note: 'Seeded dormant customer order'
+        },
+        {
+            id: 'seed_order_sara_001',
+            orderNumber: 'BOT-SEED-1003',
+            userEmail: 'sara.khalil@botanika.com',
+            productQuantities: [
+                { productId: 'prod_005', quantity: 3 },
+                { productId: 'prod_003', quantity: 1 }
+            ],
+            createdAt: '2026-04-22T08:30:00.000Z',
+            phone: '+20 100 555 1003',
+            addressLine1: '8 Olive Court',
+            city: 'Giza',
+            postalCode: '12556',
+            note: 'Seeded repeat buyer order'
+        }
+    ],
+
     SAMPLE_PRODUCTS: [
         {
             id: 'prod_001',
@@ -127,6 +202,7 @@ const FirebaseService = {
     },
     subscriptions: [],
     listenersInitialized: false,
+    demoSeedPromise: null,
 
     init() {
         if (this.readyPromise) {
@@ -233,6 +309,252 @@ const FirebaseService = {
             console.warn('Botanika default admin seed failed.', signUpResult);
         } catch (error) {
             console.warn('Botanika default admin seed request failed.', error);
+        }
+    },
+
+    async ensureDemoDataset() {
+        if (this.demoSeedPromise) {
+            return this.demoSeedPromise;
+        }
+
+        this.demoSeedPromise = (async () => {
+            const authUser = this.auth ? this.auth.currentUser : null;
+
+            if (!authUser || !this.currentUser || !this.currentUser.isAdmin) {
+                return {
+                    createdProducts: 0,
+                    createdUsers: 0,
+                    createdOrders: 0,
+                    warnings: []
+                };
+            }
+
+            const warnings = [];
+            const productSummary = await this.runSeedStep(() => this.ensureSampleProducts(), warnings, 'Sample products could not be written.');
+            const userSummary = await this.runSeedStep(() => this.ensureDemoUsers(), warnings, 'Demo users were created in Auth, but some Firestore profile writes were blocked.');
+            const orderSummary = await this.runSeedStep(() => this.ensureDemoOrders(userSummary.userMap), warnings, 'Demo orders could not be written because Firestore rules blocked the request.');
+
+            await Promise.all([
+                this.refreshProducts(),
+                this.refreshUsers(),
+                this.refreshOrders()
+            ]);
+
+            this.emit('botanika:products-updated', this.cache.products);
+            this.emit('botanika:users-updated', this.cache.users.map(user => this.toSafeUser(user)));
+            this.emit('botanika:orders-updated', this.cache.orders);
+
+            return {
+                createdProducts: productSummary.createdProducts,
+                createdUsers: userSummary.createdUsers,
+                createdOrders: orderSummary.createdOrders,
+                warnings
+            };
+        })();
+
+        try {
+            return await this.demoSeedPromise;
+        } finally {
+            this.demoSeedPromise = null;
+        }
+    },
+
+    async runSeedStep(step, warnings, message) {
+        try {
+            return await step();
+        } catch (error) {
+            console.warn(message, error);
+            warnings.push(message);
+            return {
+                createdProducts: 0,
+                createdUsers: 0,
+                createdOrders: 0,
+                userMap: {}
+            };
+        }
+    },
+
+    async ensureSampleProducts() {
+        let createdProducts = 0;
+
+        for (const product of BOTANIKA.SAMPLE_PRODUCTS) {
+            const existing = this.cache.products.find(entry => entry.id === product.id);
+
+            if (existing) {
+                continue;
+            }
+
+            await this.saveProduct(product.id, product, true);
+            createdProducts += 1;
+        }
+
+        return { createdProducts };
+    },
+
+    async ensureDemoUsers() {
+        let createdUsers = 0;
+        const userMap = {};
+
+        for (const demoUser of BOTANIKA.DEMO_USERS) {
+            const result = await this.withSecondarySession(
+                demoUser.email,
+                BOTANIKA.DEFAULT_ADMIN.password,
+                async session => {
+                    const profileRef = session.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(session.user.uid);
+                    const profileDoc = await profileRef.get();
+
+                    if (!profileDoc.exists) {
+                        await profileRef.set({
+                            name: demoUser.name,
+                            email: demoUser.email,
+                            isAdmin: false,
+                            avatar: demoUser.avatar || '',
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    }
+
+                    return {
+                        user: session.user,
+                        created: session.created,
+                        hadProfile: profileDoc.exists
+                    };
+                },
+                { allowCreate: true }
+            );
+
+            userMap[demoUser.email] = result.user.uid;
+
+            if (result.created || !result.hadProfile) {
+                createdUsers += 1;
+            }
+        }
+
+        return { createdUsers, userMap };
+    },
+
+    async ensureDemoOrders(userMap = {}) {
+        let createdOrders = 0;
+
+        for (const demoOrder of BOTANIKA.DEMO_ORDERS) {
+            const existingOrder = this.cache.orders.find(order => order.id === demoOrder.id);
+
+            if (existingOrder) {
+                continue;
+            }
+
+            const userId = userMap[demoOrder.userEmail] || null;
+            const customer = BOTANIKA.DEMO_USERS.find(user => user.email === demoOrder.userEmail);
+
+            if (!userId || !customer) {
+                continue;
+            }
+
+            const items = demoOrder.productQuantities
+                .map(line => {
+                    const product = this.cache.products.find(entry => entry.id === line.productId);
+
+                    if (!product) {
+                        return null;
+                    }
+
+                    return {
+                        productId: product.id,
+                        name: product.name,
+                        image: product.image,
+                        price: product.price,
+                        quantity: line.quantity,
+                        lineTotal: product.price * line.quantity
+                    };
+                })
+                .filter(Boolean);
+
+            if (!items.length) {
+                continue;
+            }
+
+            const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
+            await this.withSecondarySession(
+                demoOrder.userEmail,
+                BOTANIKA.DEFAULT_ADMIN.password,
+                async session => {
+                    await session.db.collection(BOTANIKA.COLLECTIONS.ORDERS).doc(demoOrder.id).set({
+                        userId,
+                        orderNumber: demoOrder.orderNumber,
+                        status: 'confirmed',
+                        items,
+                        subtotal,
+                        shipping: 0,
+                        total: subtotal,
+                        customerName: customer.name,
+                        customerEmail: demoOrder.userEmail,
+                        phone: demoOrder.phone || '',
+                        addressLine1: demoOrder.addressLine1,
+                        addressLine2: '',
+                        city: demoOrder.city,
+                        postalCode: demoOrder.postalCode || '',
+                        note: demoOrder.note || 'Seeded demo order',
+                        createdAt: demoOrder.createdAt,
+                        updatedAt: demoOrder.createdAt
+                    }, { merge: true });
+                }
+            );
+
+            createdOrders += 1;
+        }
+
+        return { createdOrders };
+    },
+
+    async withSecondarySession(email, password, callback, options = {}) {
+        const appName = `botanika-seed-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const secondaryApp = firebase.initializeApp(window.BOTANIKA_FIREBASE_CONFIG, appName);
+        const secondaryAuth = secondaryApp.auth();
+        const secondaryDb = secondaryApp.firestore();
+        let credentials = null;
+        let created = false;
+
+        try {
+            await secondaryAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+            try {
+                credentials = await secondaryAuth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                const canCreate = Boolean(options.allowCreate);
+                const recoverableCodes = [
+                    'auth/user-not-found',
+                    'auth/invalid-credential',
+                    'auth/invalid-login-credentials'
+                ];
+
+                if (!canCreate || !recoverableCodes.includes(error.code)) {
+                    throw error;
+                }
+
+                credentials = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+                created = true;
+            }
+
+            return await callback({
+                app: secondaryApp,
+                auth: secondaryAuth,
+                db: secondaryDb,
+                user: credentials.user,
+                created
+            });
+        } finally {
+            try {
+                await secondaryAuth.signOut();
+            } catch (error) {
+                console.warn('Botanika secondary sign-out failed.', error);
+            }
+
+            try {
+                await secondaryApp.delete();
+            } catch (error) {
+                console.warn('Botanika secondary app cleanup failed.', error);
+            }
         }
     },
 
@@ -1267,6 +1589,83 @@ const OrderManager = {
     }
 };
 
+const BotanikaInsights = {
+    getSnapshot() {
+        const products = ProductManager.getAll();
+        const users = UserManager.getAll().filter(user => !user.isAdmin);
+        const orders = OrderManager.getAll();
+        const inventoryValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
+        const totalStockUnits = products.reduce((sum, product) => sum + product.stock, 0);
+        const outOfStock = products.filter(product => product.stock === 0);
+        const lowStock = products.filter(product => product.stock > 0 && product.stock <= 5);
+        const orderCounts = new Map();
+        const customerOrders = new Map();
+
+        orders.forEach(order => {
+            (order.items || []).forEach(item => {
+                const current = orderCounts.get(item.productId) || { productId: item.productId, name: item.name, quantity: 0, revenue: 0 };
+                current.quantity += Number(item.quantity || 0);
+                current.revenue += Number(item.lineTotal || 0);
+                orderCounts.set(item.productId, current);
+            });
+
+            const userOrderList = customerOrders.get(order.userId) || [];
+            userOrderList.push(order);
+            customerOrders.set(order.userId, userOrderList);
+        });
+
+        const topProducts = [...orderCounts.values()].sort((left, right) => {
+            if (right.quantity !== left.quantity) {
+                return right.quantity - left.quantity;
+            }
+
+            return right.revenue - left.revenue;
+        });
+
+        const now = Date.now();
+        const dormantUsers = users
+            .map(user => {
+                const userOrders = (customerOrders.get(user.id) || []).slice().sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
+                const lastOrder = userOrders[0] || null;
+                const lastOrderAt = lastOrder ? new Date(lastOrder.createdAt).getTime() : null;
+                const inactiveDays = lastOrderAt ? Math.floor((now - lastOrderAt) / (1000 * 60 * 60 * 24)) : null;
+
+                return {
+                    ...user,
+                    orderCount: userOrders.length,
+                    lastOrder,
+                    inactiveDays,
+                    hasNeverOrdered: userOrders.length === 0
+                };
+            })
+            .filter(user => user.hasNeverOrdered || (user.inactiveDays !== null && user.inactiveDays >= 45))
+            .sort((left, right) => {
+                if (left.hasNeverOrdered && !right.hasNeverOrdered) {
+                    return -1;
+                }
+
+                if (!left.hasNeverOrdered && right.hasNeverOrdered) {
+                    return 1;
+                }
+
+                return (right.inactiveDays || 0) - (left.inactiveDays || 0);
+            });
+
+        return {
+            products,
+            users,
+            orders,
+            inventoryValue,
+            totalStockUnits,
+            outOfStock,
+            lowStock,
+            activeCustomers: customerOrders.size,
+            topProducts,
+            dormantUsers
+        };
+    }
+};
+
 const Toast = {
     show(message, type = 'success', duration = 3000) {
         const container = document.getElementById('toastContainer');
@@ -1554,6 +1953,7 @@ window.UserManager = UserManager;
 window.ProductManager = ProductManager;
 window.CartManager = CartManager;
 window.OrderManager = OrderManager;
+window.BotanikaInsights = BotanikaInsights;
 window.Toast = Toast;
 window.PageTransition = PageTransition;
 window.FlyingProduct = FlyingProduct;

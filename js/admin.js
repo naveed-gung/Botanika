@@ -99,12 +99,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     
     
-    function init() {
+    async function init() {
         if (adminUserName) {
             adminUserName.textContent = currentUser.name;
         }
         if (dashboardUserName) {
             dashboardUserName.textContent = currentUser.name;
+        }
+
+        try {
+            const seedSummary = await FirebaseService.ensureDemoDataset();
+
+            if (seedSummary.createdProducts || seedSummary.createdUsers || seedSummary.createdOrders) {
+                Toast.success(`Demo data ready: ${seedSummary.createdProducts} products, ${seedSummary.createdUsers} users, ${seedSummary.createdOrders} orders.`);
+            }
+
+            if (Array.isArray(seedSummary.warnings) && seedSummary.warnings.length) {
+                Toast.error(seedSummary.warnings[0]);
+            }
+        } catch (error) {
+            console.error(error);
+            Toast.error('Demo data seed could not finish. Check Firebase Auth and Firestore rules.');
         }
         
         loadDashboardStats();
@@ -888,5 +903,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     
     
-    init();
+    init().catch(error => {
+        console.error(error);
+        Toast.error('Admin dashboard failed to finish loading.');
+    });
 });

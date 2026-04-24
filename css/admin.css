@@ -264,7 +264,7 @@
 
 .admin-content-grid {
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
     gap: var(--space-2xl);
     max-width: 1600px;
     margin: 0 auto;
@@ -318,6 +318,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-lg);
+    align-items: start;
     margin-bottom: var(--space-lg);
 }
 
@@ -362,7 +363,7 @@
 
 .featured-toggle-ui {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-md);
     padding: var(--space-md);
@@ -376,6 +377,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .featured-toggle-copy strong {
@@ -386,6 +388,7 @@
 .featured-toggle-copy small {
     font-size: 0.75rem;
     color: var(--color-text-muted);
+    line-height: 1.45;
 }
 
 .featured-toggle-switch {
@@ -436,6 +439,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
     padding: var(--space-md) var(--space-lg);
     background-color: var(--color-offwhite);
     border-bottom: 1px solid var(--color-border);
@@ -450,12 +455,16 @@
 .upload-tabs {
     display: flex;
     gap: var(--space-xs);
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
 .upload-tab {
     display: flex;
     align-items: center;
     gap: var(--space-xs);
+    justify-content: center;
+    flex: 1 1 108px;
     padding: var(--space-xs) var(--space-sm);
     background-color: transparent;
     border: 1px solid var(--color-border);
@@ -484,15 +493,19 @@
 
 
 .image-preview-area {
+    display: grid;
+    gap: var(--space-md);
     padding: var(--space-md);
 }
 
 .url-input-wrapper {
-    margin-bottom: var(--space-md);
+    margin-bottom: 0;
+    min-width: 0;
 }
 
 .url-input-wrapper input {
     width: 100%;
+    min-width: 0;
     padding: var(--space-md);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -513,6 +526,7 @@
 
 .image-drop-zone {
     position: relative;
+    width: 100%;
     min-height: 180px;
     border: 2px dashed var(--color-border);
     border-radius: var(--radius-lg);
@@ -1209,7 +1223,6 @@
     }
     
     .upload-tabs {
-        flex-direction: column;
         width: 100%;
     }
     

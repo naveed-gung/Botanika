@@ -18,6 +18,8 @@ const BotanikaBot = {
             this.products = ProductManager.getAll();
             this.dataReady = true;
             this.updateStatus('Online');
+            this.updateQuickActions();
+            this.updateInputPlaceholder();
         } catch (error) {
             console.error(error);
             this.dataReady = false;
@@ -44,7 +46,7 @@ const BotanikaBot = {
                         <path d="M18 6L6 18M6 6l12 12"/>
                     </svg>
                 </button>
-                
+
                 <div class="chatbot-window" id="chatbotWindow">
                     <div class="chatbot-header">
                         <div class="chatbot-header-info">
@@ -79,11 +81,7 @@ const BotanikaBot = {
                         </button>
                     </div>
                     
-                    <div class="chatbot-quick-actions">
-                        <button class="quick-action" data-action="show-all">Show all plants</button>
-                        <button class="quick-action" data-action="best-sellers">Best sellers</button>
-                        <button class="quick-action" data-action="low-price">Budget friendly</button>
-                    </div>
+                    <div class="chatbot-quick-actions" id="chatbotQuickActions"></div>
                 </div>
             </div>
         `;
@@ -96,7 +94,6 @@ const BotanikaBot = {
         const close = document.getElementById('chatbotClose');
         const send = document.getElementById('chatbotSend');
         const input = document.getElementById('chatbotInput');
-        const quickActions = document.querySelectorAll('.quick-action');
         
         toggle.addEventListener('click', () => this.toggle());
         close.addEventListener('click', () => this.close());
@@ -104,12 +101,15 @@ const BotanikaBot = {
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendMessage();
         });
-        
-        quickActions.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const action = btn.getAttribute('data-action');
-                this.handleQuickAction(action);
-            });
+
+        document.addEventListener('click', event => {
+            const quickAction = event.target.closest('.quick-action');
+
+            if (!quickAction || !quickAction.closest('#chatbotQuickActions')) {
+                return;
+            }
+
+            this.handleQuickAction(quickAction.getAttribute('data-action'));
         });
         
         document.addEventListener('botanika:products-updated', () => {
@@ -119,6 +119,59 @@ const BotanikaBot = {
                 this.updateStatus('Online');
             }
         });
+
+        document.addEventListener('botanika:users-updated', () => {
+            this.updateQuickActions();
+        });
+
+        document.addEventListener('botanika:orders-updated', () => {
+            this.updateQuickActions();
+        });
+
+        document.addEventListener('botanika:user-changed', () => {
+            this.updateQuickActions();
+            this.updateInputPlaceholder();
+        });
+    },
+
+    isAdminMode() {
+        return Boolean(UserManager.getCurrentUser() && UserManager.getCurrentUser().isAdmin);
+    },
+
+    updateInputPlaceholder() {
+        const input = document.getElementById('chatbotInput');
+
+        if (!input) {
+            return;
+        }
+
+        input.placeholder = this.isAdminMode()
+            ? 'Ask about inventory, customers, or orders...'
+            : 'Ask about our plants...';
+    },
+
+    updateQuickActions() {
+        const container = document.getElementById('chatbotQuickActions');
+
+        if (!container) {
+            return;
+        }
+
+        const actions = this.isAdminMode()
+            ? [
+                { action: 'inventory-overview', label: 'Inventory overview' },
+                { action: 'top-products', label: 'Most bought' },
+                { action: 'inactive-users', label: 'Inactive users' }
+            ]
+            : [
+                { action: 'show-all', label: 'Show all plants' },
+                { action: 'best-sellers', label: 'Best sellers' },
+                { action: 'low-price', label: 'Budget friendly' }
+            ];
+
+        container.innerHTML = actions.map(item => (
+            `<button class="quick-action" data-action="${item.action}">${item.label}</button>`
+        )).join('');
     },
 
     updateStatus(label) {
@@ -131,6 +184,10 @@ const BotanikaBot = {
     toggle() {
         const container = document.getElementById('chatbotContainer');
         const chatWindow = document.getElementById('chatbotWindow');
+
+        if (!container || !chatWindow) {
+            return;
+        }
         
         if (this.isOpen) {
             chatWindow.classList.remove('open');
@@ -231,6 +288,24 @@ const BotanikaBot = {
                     this.addMessage({ type: 'bot', text: response });
                 }, 500);
                 break;
+            case 'inventory-overview':
+                this.addMessage({ type: 'user', text: 'Give me the inventory overview' });
+                setTimeout(() => {
+                    this.addMessage({ type: 'bot', text: this.getInventoryOverview() });
+                }, 500);
+                break;
+            case 'top-products':
+                this.addMessage({ type: 'user', text: 'Which products are bought the most?' });
+                setTimeout(() => {
+                    this.addMessage({ type: 'bot', text: this.getTopProductsReport() });
+                }, 500);
+                break;
+            case 'inactive-users':
+                this.addMessage({ type: 'user', text: 'Which users have not bought for a long time?' });
+                setTimeout(() => {
+                    this.addMessage({ type: 'bot', text: this.getInactiveUsersReport() });
+                }, 500);
+                break;
         }
     },
     
@@ -257,6 +332,24 @@ const BotanikaBot = {
         const bye = ['bye', 'goodbye', 'see you', 'later', 'gotta go', 'cya'];
         if (bye.some(b => q.includes(b))) {
             return 'Goodbye. Thanks for visiting BOTANIKA. Come back soon.';
+        }
+
+        if (this.isAdminMode()) {
+            if (q.includes('inventory value') || q.includes('inventory overview') || q.includes('stock summary') || q.includes('total inventory')) {
+                return this.getInventoryOverview();
+            }
+
+            if (q.includes('most bought') || q.includes('top product') || q.includes('best selling') || q.includes('bought the most')) {
+                return this.getTopProductsReport();
+            }
+
+            if (q.includes('inactive user') || q.includes('didn') || q.includes('long time') || q.includes('no order') || q.includes('no purchase')) {
+                return this.getInactiveUsersReport();
+            }
+
+            if (q.includes('customer') || q.includes('client') || q.includes('users')) {
+                return this.getCustomerSummary();
+            }
         }
         
         if (q.includes('price') || q.includes('cost') || q.includes('how much')) {
@@ -294,10 +387,76 @@ const BotanikaBot = {
     },
     
     getStockResponse(question) {
+        const matchedProduct = this.products.find(product => question.includes(product.name.toLowerCase()));
+
+        if (matchedProduct) {
+            return `${matchedProduct.name} currently has ${matchedProduct.stock} unit${matchedProduct.stock === 1 ? '' : 's'} in stock.`;
+        }
+
         const inStock = this.products.filter(p => p.stock > 0);
         const outOfStock = this.products.filter(p => p.stock === 0);
         
         return `We currently have ${inStock.length} products in stock and ${outOfStock.length} temporarily out of stock. ${inStock.length > 0 ? 'Would you like to see what\'s available?' : ''}`;
+    },
+
+    getInventoryOverview() {
+        const snapshot = BotanikaInsights.getSnapshot();
+
+        if (!snapshot.products.length) {
+            return 'No catalog data is available yet. Seed products first or check Firestore product reads.';
+        }
+
+        return [
+            `Inventory value: ${formatPrice(snapshot.inventoryValue)}`,
+            `Total products: ${snapshot.products.length}`,
+            `Total stock units: ${snapshot.totalStockUnits}`,
+            `Registered clients: ${snapshot.users.length}`,
+            `Orders tracked: ${snapshot.orders.length}`,
+            `Low stock items: ${snapshot.lowStock.length}`,
+            `Out of stock items: ${snapshot.outOfStock.length}`
+        ].join('\n');
+    },
+
+    getTopProductsReport() {
+        const snapshot = BotanikaInsights.getSnapshot();
+        const topProducts = snapshot.topProducts.slice(0, 3);
+
+        if (!topProducts.length) {
+            return 'No order history is available yet, so there is no most-bought product report.';
+        }
+
+        return `Most bought products:\n\n${topProducts.map((product, index) => `${index + 1}. ${product.name} - ${product.quantity} unit${product.quantity === 1 ? '' : 's'} sold`).join('\n')}`;
+    },
+
+    getInactiveUsersReport() {
+        const snapshot = BotanikaInsights.getSnapshot();
+        const dormantUsers = snapshot.dormantUsers.slice(0, 4);
+
+        if (!dormantUsers.length) {
+            return 'Every customer has placed a recent order in the last 45 days.';
+        }
+
+        return `Customers needing attention:\n\n${dormantUsers.map(user => {
+            if (user.hasNeverOrdered) {
+                return `• ${user.name} has not placed a first order yet.`;
+            }
+
+            return `• ${user.name} last ordered ${user.inactiveDays} days ago.`;
+        }).join('\n')}`;
+    },
+
+    getCustomerSummary() {
+        const snapshot = BotanikaInsights.getSnapshot();
+
+        if (!snapshot.users.length) {
+            return 'No client profiles are available yet.';
+        }
+
+        return [
+            `Registered clients: ${snapshot.users.length}`,
+            `Clients with at least one order: ${snapshot.activeCustomers}`,
+            `Clients with no order yet: ${snapshot.dormantUsers.filter(user => user.hasNeverOrdered).length}`
+        ].join('\n');
     },
     
     getCategoryResponse() {
