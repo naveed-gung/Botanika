@@ -773,11 +773,6 @@ const UserManager = {
         await FirebaseService.init();
 
         const normalizedEmail = email.trim().toLowerCase();
-        const existingUser = await FirebaseService.findUserByEmail(normalizedEmail);
-
-        if (existingUser) {
-            return { success: false, message: 'Email already registered' };
-        }
 
         try {
             const credentials = await FirebaseService.auth.createUserWithEmailAndPassword(normalizedEmail, password);
@@ -965,6 +960,10 @@ const UserManager = {
 
         if (code === 'auth/invalid-action-code' || code === 'auth/expired-action-code') {
             return 'This sign-in link is invalid or has expired';
+        }
+
+        if (code === 'permission-denied') {
+            return 'Firestore rules are blocking this action. Publish the project firestore.rules file first.';
         }
 
         return 'Something went wrong. Please try again.';

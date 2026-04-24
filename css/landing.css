@@ -473,6 +473,13 @@
     background: #7a8a4b;
 }
 
+.landing-page .btn-primary:hover,
+.landing-page .btn-secondary:hover,
+.landing-page .btn-danger:hover,
+.landing-page .cta-section .btn-primary:hover {
+    transform: none;
+}
+
 .btn-large {
     padding: var(--space-lg) var(--space-2xl);
     font-size: 1rem;

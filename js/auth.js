@@ -18,11 +18,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showLogin() {
         authContainer.classList.add('show-login');
+        if (window.location.hash !== '#login') {
+            window.history.replaceState(null, '', '#login');
+        }
         loginForm.querySelector('input').focus();
     }
     
     function showRegister() {
         authContainer.classList.remove('show-login');
+        if (window.location.hash === '#login') {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
         registerForm.querySelector('input').focus();
     }
 

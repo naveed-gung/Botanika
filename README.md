@@ -4,6 +4,8 @@
 
 Botanika is a polished multi-page botanical storefront built with plain HTML, CSS, and JavaScript, backed by Firebase Auth and Firestore for lightweight realtime commerce flows.
 
+This repository is a college project built to stay fully zero-funded, so the app uses Cloud Firestore only and does not depend on Firebase Storage.
+
 ## Highlights
 
 - Realtime product, cart, profile, and order flows powered by Firebase
@@ -11,6 +13,7 @@ Botanika is a polished multi-page botanical storefront built with plain HTML, CS
 - Password reset, Google sign-in, and passwordless email-link sign-in support
 - Base64 media uploads for product imagery and customer avatars with a 1 MB cap
 - Static-hosting friendly deployment for Netlify
+- Structured as a college submission with a public storefront, admin surface, and account area
 
 ## Experience Map
 
@@ -26,18 +29,19 @@ Botanika is a polished multi-page botanical storefront built with plain HTML, CS
 2. Paste in your Firebase project values.
 3. Enable these providers in Firebase Auth:
  `Email/Password`, `Google`, and `Email link (passwordless sign-in)`.
-4. Create Firestore and apply security rules that allow public product reads, user-scoped carts/orders, and admin-only inventory management.
+4. Create Firestore and publish the included `firestore.rules` file so public product reads, user-scoped carts/orders, and admin-only inventory management can work.
 
 `js/firebase.config.js` stays local and is already ignored by git.
 
-## Seeded Admin Account
+Firebase Storage is intentionally not used in this project.
 
-The app seeds a default admin profile for first-run setup:
+## Admin Setup
 
-- Email: `admin@botanika.com`
-- Password: `BotanikaAdmin!2026`
+This version does not auto-seed an admin from the browser.
 
-Rotate or remove that account before using the project as a real storefront.
+Create a normal account first, then set `isAdmin: true` on that user document in Firestore to unlock the admin dashboard.
+
+That keeps the project compatible with Firestore rules and avoids unsafe browser-side seeding.
 
 ## Media Limits
 
