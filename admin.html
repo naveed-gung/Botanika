@@ -187,51 +187,6 @@
         <div class="admin-content-grid">
             <!-- Left Column - Product Form & Users -->
             <div class="admin-left-column">
-                <!-- Profile Settings Card -->
-                <div class="admin-card profile-card" style="margin-bottom: var(--space-xl);">
-                    <div class="card-header">
-                        <h2>Admin Profile Settings</h2>
-                        <p>Manage your account details</p>
-                    </div>
-                    <div class="profile-content" style="padding: var(--space-lg); display: flex; flex-direction: column; align-items: center; gap: var(--space-lg);">
-                        <div class="profile-avatar-block" style="display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);">
-                            <div class="profile-avatar" id="profileAvatar" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-sand) 0%, var(--color-sand-light) 100%); border-radius: var(--radius-full); color: var(--color-primary); overflow: hidden;"></div>
-                            <div class="profile-avatar-actions" style="display: flex; flex-direction: column; align-items: center; gap: var(--space-xs); text-align: center;">
-                                <input type="file" id="profileImageInput" accept="image/*" hidden>
-                                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
-                                    <button class="btn btn-secondary btn-small" id="profileImageTrigger" type="button" style="padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Upload Photo</button>
-                                    <button class="btn btn-danger btn-small" id="removeAvatarBtn" type="button" style="display:none; padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Remove Photo</button>
-                                </div>
-                                <p class="profile-avatar-hint" style="max-width: 220px; font-size: 0.75rem; line-height: 1.5; color: var(--color-text-muted);">Images are saved in Firestore as base64 data. Uploads are limited to 1 MB.</p>
-                            </div>
-                        </div>
-                        <form class="profile-editor" id="profileForm" style="display:flex; flex-direction:column; gap:0.5rem; width:100%;">
-                            <label class="profile-form-label" for="profileNameInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Name</label>
-                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
-                                <input type="text" id="profileNameInput" maxlength="60" placeholder="Your name" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
-                            </div>
-                            
-                            <label class="profile-form-label" for="profileEmailInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Email</label>
-                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
-                                <input type="email" id="profileEmailInput" placeholder="Your email" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
-                            </div>
-                            
-                            <label class="profile-form-label" for="profilePhoneInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Phone</label>
-                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
-                                <input type="tel" id="profilePhoneInput" placeholder="Your phone number" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
-                            </div>
-                            
-                            <label class="profile-form-label" for="profilePasswordInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">New Password (leave blank to keep)</label>
-                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
-                                <input type="password" id="profilePasswordInput" placeholder="New Password" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
-                            </div>
-                            
-                            <div class="profile-secondary-actions" style="margin-top: 0.5rem;">
-                                <button class="btn btn-primary btn-small" id="saveProfileBtn" type="button" style="padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
 
                 <!-- Product Form -->
                 <div class="admin-card product-form-card">
@@ -250,19 +205,19 @@
                                 <div class="input-line"></div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group full-width">
                                 <input type="text" id="productCategory" name="category" required>
                                 <label for="productCategory">Category <span class="required-star">*</span></label>
                                 <div class="input-line"></div>
                             </div>
                             
-                            <div class="form-group half">
+                            <div class="form-group">
                                 <input type="number" id="productPrice" name="price" step="0.01" min="0" required>
                                 <label for="productPrice">Price ($) <span class="required-star">*</span></label>
                                 <div class="input-line"></div>
                             </div>
                             
-                            <div class="form-group half">
+                            <div class="form-group">
                                 <input type="number" id="productStock" name="stock" min="0" required>
                                 <label for="productStock">Stock <span class="required-star">*</span></label>
                                 <div class="input-line"></div>
@@ -407,13 +362,59 @@
                 </div>
 
                 <!-- User Management Section -->
-                <div class="admin-card users-card">
+                <div class="admin-card users-card" style="margin-bottom: var(--space-xl);">
                     <div class="card-header">
                         <h2>User Management</h2>
                         <p>Manage registered users</p>
                     </div>
                     <div class="users-list" id="usersList">
                         <!-- Users will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Profile Settings Card -->
+                <div class="admin-card profile-card" style="margin-bottom: var(--space-xl);">
+                    <div class="card-header">
+                        <h2>Admin Profile Settings</h2>
+                        <p>Manage your account details</p>
+                    </div>
+                    <div class="profile-content" style="padding: var(--space-lg); display: flex; flex-direction: column; align-items: center; gap: var(--space-lg);">
+                        <div class="profile-avatar-block" style="display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);">
+                            <div class="profile-avatar" id="profileAvatar" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-sand) 0%, var(--color-sand-light) 100%); border-radius: var(--radius-full); color: var(--color-primary); overflow: hidden;"></div>
+                            <div class="profile-avatar-actions" style="display: flex; flex-direction: column; align-items: center; gap: var(--space-xs); text-align: center;">
+                                <input type="file" id="profileImageInput" accept="image/*" hidden>
+                                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
+                                    <button class="btn btn-secondary btn-small" id="profileImageTrigger" type="button" style="padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Upload Photo</button>
+                                    <button class="btn btn-danger btn-small" id="removeAvatarBtn" type="button" style="display:none; padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Remove Photo</button>
+                                </div>
+                                <p class="profile-avatar-hint" style="max-width: 220px; font-size: 0.75rem; line-height: 1.5; color: var(--color-text-muted);">Images are saved in Firestore as base64 data. Uploads are limited to 1 MB.</p>
+                            </div>
+                        </div>
+                        <form class="profile-editor" id="profileForm" style="display:flex; flex-direction:column; gap:0.5rem; width:100%;">
+                            <label class="profile-form-label" for="profileNameInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Name</label>
+                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
+                                <input type="text" id="profileNameInput" maxlength="60" placeholder="Your name" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
+                            </div>
+                            
+                            <label class="profile-form-label" for="profileEmailInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Email</label>
+                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
+                                <input type="email" id="profileEmailInput" placeholder="Your email" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
+                            </div>
+                            
+                            <label class="profile-form-label" for="profilePhoneInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">Phone</label>
+                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
+                                <input type="tel" id="profilePhoneInput" placeholder="Your phone number" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
+                            </div>
+                            
+                            <label class="profile-form-label" for="profilePasswordInput" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted);">New Password (leave blank to keep)</label>
+                            <div class="profile-edit-row" style="display: flex; gap: var(--space-sm);">
+                                <input type="password" id="profilePasswordInput" placeholder="New Password" style="flex: 1; padding: 0.875rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background-color: var(--color-offwhite); color: var(--color-charcoal); font: inherit;">
+                            </div>
+                            
+                            <div class="profile-secondary-actions" style="margin-top: 0.5rem;">
+                                <button class="btn btn-primary btn-small" id="saveProfileBtn" type="button" style="padding: var(--space-xs) var(--space-md); font-size: 0.8125rem;">Save Changes</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

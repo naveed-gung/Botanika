@@ -9,10 +9,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         await BOTANIKA.ready();
+        
+        const user = UserManager.getCurrentUser();
+        const landingNav = document.getElementById('landingNav');
+        
+        if (user && landingNav) {
+            landingNav.innerHTML = `
+                <a href="shop.html" class="nav-link">Shop</a>
+                <a href="${user.isAdmin ? 'admin.html' : 'user.html'}" class="user-badge" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:var(--color-charcoal); font-weight:500;">
+                    ${user.avatar 
+                        ? `<img src="${escapeHtml(user.avatar)}" alt="" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">` 
+                        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`}
+                    <span>${escapeHtml(user.name)}</span>
+                </a>
+            `;
+        }
     } catch (error) {
         console.error(error);
     }
-
     
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const landingNav = document.getElementById('landingNav');
