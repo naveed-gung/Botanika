@@ -271,6 +271,7 @@
     background: linear-gradient(135deg, var(--color-sand) 0%, var(--color-sand-light) 100%);
     border-radius: var(--radius-full);
     color: var(--color-primary);
+    overflow: hidden;
 }
 
 .profile-avatar-actions {

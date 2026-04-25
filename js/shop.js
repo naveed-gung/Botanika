@@ -564,7 +564,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 const productId = card.dataset.productId;
-                openProductModal(productId);
+                PageTransition.navigate(`plant-detail.html?id=${productId}`);
             });
         });
     }
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         relatedGrid.querySelectorAll('.related-card').forEach(card => {
             card.addEventListener('click', () => {
                 const productId = card.dataset.productId;
-                openProductModal(productId);
+                PageTransition.navigate(`plant-detail.html?id=${productId}`);
             });
         });
     }

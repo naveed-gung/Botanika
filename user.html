@@ -157,7 +157,10 @@
                         <div class="profile-avatar" id="profileAvatar"></div>
                         <div class="profile-avatar-actions">
                             <input type="file" id="profileImageInput" accept="image/*" hidden>
-                            <button class="btn btn-secondary btn-small" id="profileImageTrigger" type="button">Upload Photo</button>
+                            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
+                                <button class="btn btn-secondary btn-small" id="profileImageTrigger" type="button">Upload Photo</button>
+                                <button class="btn btn-danger btn-small" id="removeAvatarBtn" type="button" style="display:none;">Remove Photo</button>
+                            </div>
                             <p class="profile-avatar-hint">Images are saved in Firestore as base64 data. Uploads are limited to 1 MB.</p>
                         </div>
                     </div>
@@ -175,16 +178,31 @@
                             <span class="profile-value profile-badge" id="profileType">Customer</span>
                         </div>
                     </div>
-                    <div class="profile-editor">
-                        <label class="profile-form-label" for="profileNameInput">Update display name</label>
+                    <form class="profile-editor" id="profileForm" style="display:flex; flex-direction:column; gap:0.5rem; width:100%;">
+                        <label class="profile-form-label" for="profileNameInput">Name</label>
                         <div class="profile-edit-row">
                             <input type="text" id="profileNameInput" maxlength="60" placeholder="Your name">
-                            <button class="btn btn-secondary btn-small" id="saveProfileBtn" type="button">Save</button>
                         </div>
-                        <div class="profile-secondary-actions">
-                            <button class="btn btn-secondary btn-small" id="passwordResetBtn" type="button">Send Password Reset Email</button>
+                        
+                        <label class="profile-form-label" for="profileEmailInput">Email</label>
+                        <div class="profile-edit-row">
+                            <input type="email" id="profileEmailInput" placeholder="Your email">
                         </div>
-                    </div>
+                        
+                        <label class="profile-form-label" for="profilePhoneInput">Phone</label>
+                        <div class="profile-edit-row">
+                            <input type="tel" id="profilePhoneInput" placeholder="Your phone number">
+                        </div>
+                        
+                        <label class="profile-form-label" for="profilePasswordInput">New Password (leave blank to keep)</label>
+                        <div class="profile-edit-row">
+                            <input type="password" id="profilePasswordInput" placeholder="New Password">
+                        </div>
+                        
+                        <div class="profile-secondary-actions" style="margin-top: 0.5rem;">
+                            <button class="btn btn-primary btn-small" id="saveProfileBtn" type="button">Save Changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

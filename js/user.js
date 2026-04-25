@@ -16,8 +16,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profileImageInput = document.getElementById('profileImageInput');
     const profileImageTrigger = document.getElementById('profileImageTrigger');
     const profileNameInput = document.getElementById('profileNameInput');
+    const profileEmailInput = document.getElementById('profileEmailInput');
+    const profilePhoneInput = document.getElementById('profilePhoneInput');
+    const profilePasswordInput = document.getElementById('profilePasswordInput');
     const saveProfileBtn = document.getElementById('saveProfileBtn');
     const passwordResetBtn = document.getElementById('passwordResetBtn');
+    const removeAvatarBtn = document.getElementById('removeAvatarBtn');
     const cartSummaryContent = document.getElementById('cartSummaryContent');
     const cartSummaryEmpty = document.getElementById('cartSummaryEmpty');
     const cartSummaryFooter = document.getElementById('cartSummaryFooter');
@@ -75,6 +79,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (profileAvatar) {
             profileAvatar.innerHTML = renderAvatarMarkup(currentUser, 'avatar-image');
         }
+
+        // Show/hide the Remove Photo button based on whether avatar exists
+        if (removeAvatarBtn) {
+            removeAvatarBtn.style.display = currentUser && currentUser.avatar ? 'inline-flex' : 'none';
+        }
     }
 
     function formatOrderDate(value) {
@@ -117,6 +126,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (profileEmail) profileEmail.textContent = currentUser.email;
         if (profileType) profileType.textContent = currentUser.isAdmin ? 'Administrator' : 'Customer';
         if (profileNameInput) profileNameInput.value = currentUser.name || '';
+        if (profileEmailInput) profileEmailInput.value = currentUser.email || '';
+        if (profilePhoneInput) profilePhoneInput.value = currentUser.phone || '';
         if (checkoutName) checkoutName.value = currentUser.name || '';
         renderAvatar();
     }
@@ -330,6 +341,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function handleSaveProfile() {
         const name = profileNameInput ? profileNameInput.value.trim() : '';
+        const email = profileEmailInput ? profileEmailInput.value.trim() : '';
+        const phone = profilePhoneInput ? profilePhoneInput.value.trim() : '';
+        const password = profilePasswordInput ? profilePasswordInput.value : '';
 
         if (name.length < 2) {
             Toast.error('Please enter a valid name');
@@ -337,16 +351,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const result = await UserManager.updateProfile(currentUser.id, { name });
+        const updates = { name };
+        if (email) updates.email = email;
+        if (phone) updates.phone = phone;
+
+        const result = await UserManager.updateProfile(currentUser.id, updates);
 
         if (!result.success) {
             Toast.error('Failed to update your profile');
             return;
         }
 
+        try {
+            const authUser = firebase.auth().currentUser;
+            if (authUser) {
+                if (email && email !== authUser.email) {
+                    await authUser.updateEmail(email);
+                }
+                if (password) {
+                    await authUser.updatePassword(password);
+                }
+            }
+        } catch (err) {
+            Toast.error('Profile updated, but failed to update email/password: ' + err.message);
+        }
+
         currentUser = UserManager.getCurrentUser();
         refreshDashboard();
         Toast.success('Profile updated');
+        if (profilePasswordInput) profilePasswordInput.value = '';
     }
 
     async function handlePasswordReset() {
@@ -405,6 +438,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (checkoutForm) checkoutForm.addEventListener('submit', handleCheckoutSubmit);
     if (saveProfileBtn) saveProfileBtn.addEventListener('click', handleSaveProfile);
     if (passwordResetBtn) passwordResetBtn.addEventListener('click', handlePasswordReset);
+
+    if (removeAvatarBtn) {
+        removeAvatarBtn.addEventListener('click', async () => {
+            const result = await UserManager.updateProfile(currentUser.id, { avatar: '' });
+            if (!result.success) { Toast.error('Failed to remove photo'); return; }
+            currentUser = UserManager.getCurrentUser();
+            refreshDashboard();
+            Toast.success('Profile photo removed');
+        });
+    }
 
     if (profileImageTrigger && profileImageInput) {
         profileImageTrigger.addEventListener('click', () => profileImageInput.click());

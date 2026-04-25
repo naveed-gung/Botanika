@@ -77,6 +77,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         stock: 'all'
     };
 
+    // Profile panel refs
+    const profileAvatar     = document.getElementById('profileAvatar');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const profileImageTrigger = document.getElementById('profileImageTrigger');
+    const profileNameInput  = document.getElementById('profileNameInput');
+    const profileEmailInput = document.getElementById('profileEmailInput');
+    const profilePhoneInput = document.getElementById('profilePhoneInput');
+    const profilePasswordInput = document.getElementById('profilePasswordInput');
+    const saveProfileBtn    = document.getElementById('saveProfileBtn');
+    const removeAvatarBtn   = document.getElementById('removeAvatarBtn');
+
     try {
         await BOTANIKA.ready();
     } catch (error) {
@@ -125,9 +136,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadDashboardStats();
         loadProducts();
         loadUsers();
+        loadAdminProfile();
         
         setupEventListeners();
         setupImageUpload();
+        setupProfilePanel();
         bindRealtimeListeners();
     }
     
@@ -566,8 +579,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     function attachProductListeners() {
         
+        document.querySelectorAll('.admin-product-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.admin-product-actions')) return;
+                const productId = card.dataset.productId;
+                PageTransition.navigate(`plant-detail.html?id=${productId}`);
+            });
+            card.style.cursor = 'pointer';
+        });
+        
         document.querySelectorAll('.admin-product-card .edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const productId = btn.dataset.productId;
                 editProduct(productId);
             });
@@ -575,7 +598,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         
         document.querySelectorAll('.admin-product-card .delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const productId = btn.dataset.productId;
                 openDeleteModal(productId, 'product');
             });
@@ -793,6 +817,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         usersList.innerHTML = users.map(user => `
             <div class="user-item" data-user-id="${user.id}">
+                <div class="user-avatar-thumb">
+                    ${renderAvatarMarkup(user, 'user-avatar-img')}
+                </div>
                 <div class="user-info">
                     <span class="user-name">${escapeHtml(user.name)}</span>
                     <span class="user-email">${escapeHtml(user.email)}</span>
@@ -884,6 +911,120 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => {
             PageTransition.navigate('index.html');
         }, 1000);
+    }
+
+
+
+
+
+    // ─── Admin Profile Panel ───────────────────────────────────────────────────
+
+    function loadAdminProfile() {
+        if (!currentUser) return;
+        if (profileNameInput)  profileNameInput.value  = currentUser.name  || '';
+        if (profileEmailInput) profileEmailInput.value = currentUser.email || '';
+        if (profilePhoneInput) profilePhoneInput.value = currentUser.phone || '';
+        renderAdminAvatar();
+    }
+
+    function renderAdminAvatar() {
+        if (!profileAvatar) return;
+        profileAvatar.innerHTML = renderAvatarMarkup(currentUser, 'avatar-image');
+        // Show/hide Remove Photo button
+        if (removeAvatarBtn) {
+            removeAvatarBtn.style.display = currentUser && currentUser.avatar ? 'inline-flex' : 'none';
+        }
+    }
+
+    function setupProfilePanel() {
+        if (profileImageTrigger && profileImageInput) {
+            profileImageTrigger.addEventListener('click', () => profileImageInput.click());
+            profileImageInput.addEventListener('change', handleAdminAvatarChange);
+        }
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener('click', handleAdminSaveProfile);
+        }
+        if (removeAvatarBtn) {
+            removeAvatarBtn.addEventListener('click', async () => {
+                const result = await UserManager.updateProfile(currentUser.id, { avatar: '' });
+                if (!result.success) { Toast.error('Failed to remove photo'); return; }
+                currentUser = UserManager.getCurrentUser();
+                renderAdminAvatar();
+                Toast.success('Profile photo removed');
+            });
+        }
+    }
+
+    async function handleAdminAvatarChange(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            Toast.error('Please choose an image file');
+            event.target.value = '';
+            return;
+        }
+        if (file.size > 1024 * 1024) {
+            Toast.error('Image size must be 1 MB or less');
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async loadEvent => {
+            const avatar = loadEvent.target && typeof loadEvent.target.result === 'string'
+                ? loadEvent.target.result : '';
+            if (!avatar) { Toast.error('Failed to read image'); return; }
+
+            const result = await UserManager.updateProfile(currentUser.id, { avatar });
+            if (!result.success) { Toast.error('Failed to update profile photo'); return; }
+
+            currentUser = UserManager.getCurrentUser();
+            renderAdminAvatar();
+            Toast.success('Profile photo updated');
+        };
+        reader.onerror = () => Toast.error('Failed to read image');
+        reader.readAsDataURL(file);
+        event.target.value = '';
+    }
+
+    async function handleAdminSaveProfile() {
+        const name     = profileNameInput  ? profileNameInput.value.trim()  : '';
+        const email    = profileEmailInput ? profileEmailInput.value.trim() : '';
+        const phone    = profilePhoneInput ? profilePhoneInput.value.trim() : '';
+        const password = profilePasswordInput ? profilePasswordInput.value  : '';
+
+        if (name.length < 2) {
+            Toast.error('Please enter a valid name');
+            profileNameInput?.focus();
+            return;
+        }
+
+        const updates = { name };
+        if (email) updates.email = email;
+        if (phone) updates.phone = phone;
+
+        const result = await UserManager.updateProfile(currentUser.id, updates);
+        if (!result.success) {
+            Toast.error('Failed to update profile');
+            return;
+        }
+
+        try {
+            const authUser = firebase.auth().currentUser;
+            if (authUser) {
+                if (email && email !== authUser.email) await authUser.updateEmail(email);
+                if (password) await authUser.updatePassword(password);
+            }
+        } catch (err) {
+            Toast.error('Profile saved, but auth update failed: ' + err.message);
+        }
+
+        currentUser = UserManager.getCurrentUser();
+        if (adminUserName) adminUserName.textContent = currentUser.name;
+        if (dashboardUserName) dashboardUserName.textContent = currentUser.name;
+        if (profilePasswordInput) profilePasswordInput.value = '';
+        Toast.success('Profile updated');
     }
     
     

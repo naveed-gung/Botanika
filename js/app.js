@@ -8,7 +8,8 @@ const BOTANIKA = {
         USERS: 'users',
         PRODUCTS: 'products',
         CARTS: 'carts',
-        ORDERS: 'orders'
+        ORDERS: 'orders',
+        COMMENTS: 'comments'
     },
 
     DEFAULT_ADMIN: {
@@ -1946,6 +1947,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 BOTANIKA.ready = () => FirebaseService.init();
 
+const CommentManager = {
+    async getForProduct(productId) {
+        await FirebaseService.init();
+        try {
+            const snapshot = await FirebaseService.db
+                .collection(BOTANIKA.COLLECTIONS.COMMENTS)
+                .where('productId', '==', productId)
+                .orderBy('createdAt', 'desc')
+                .get();
+            return snapshot.docs.map(doc => FirebaseService.normalizeRecord(doc));
+        } catch (error) {
+            // If index not ready yet, fall back to client-sort
+            if (error && (error.code === 'failed-precondition' || error.code === 'unimplemented')) {
+                const snapshot2 = await FirebaseService.db
+                    .collection(BOTANIKA.COLLECTIONS.COMMENTS)
+                    .where('productId', '==', productId)
+                    .get();
+                return snapshot2.docs
+                    .map(doc => FirebaseService.normalizeRecord(doc))
+                    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            }
+            throw error;
+        }
+    },
+
+    async add(productId, text) {
+        await FirebaseService.init();
+        const user = UserManager.getCurrentUser();
+        if (!user) return { success: false, message: 'You must be signed in to comment' };
+        const authUser = FirebaseService.auth ? FirebaseService.auth.currentUser : null;
+        if (!authUser) return { success: false, message: 'You must be signed in to comment' };
+
+        const id = generateId('comment');
+        await FirebaseService.db.collection(BOTANIKA.COLLECTIONS.COMMENTS).doc(id).set({
+            productId,
+            userId: user.id,
+            userName: user.name,
+            userAvatar: user.avatar || '',
+            text: text.trim(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return { success: true };
+    },
+
+    async delete(commentId) {
+        await FirebaseService.init();
+        await FirebaseService.db.collection(BOTANIKA.COLLECTIONS.COMMENTS).doc(commentId).delete();
+        return { success: true };
+    }
+};
+
 window.BOTANIKA = BOTANIKA;
 window.SessionStore = SessionStore;
 window.FirebaseService = FirebaseService;
@@ -1963,3 +2015,4 @@ window.debounce = debounce;
 window.escapeHtml = escapeHtml;
 window.createFooter = createFooter;
 window.renderAvatarMarkup = renderAvatarMarkup;
+window.CommentManager = CommentManager;
