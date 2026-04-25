@@ -1,6 +1,6 @@
 .chatbot-container {
     position: fixed;
-    bottom: 24px;
+    bottom: 68px;
     right: 24px;
     z-index: 9999;
     font-family: var(--font-body);
@@ -51,7 +51,7 @@
 
 .chatbot-window {
     position: absolute;
-    bottom: 80px;
+    bottom: 124px;
     right: 0;
     width: 380px;
     height: 550px;
@@ -311,7 +311,7 @@
 
 @media (max-width: 480px) {
     .chatbot-container {
-        bottom: 16px;
+        bottom: 60px;
         right: 16px;
     }
     

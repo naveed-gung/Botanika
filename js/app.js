@@ -397,37 +397,40 @@ const FirebaseService = {
         const userMap = {};
 
         for (const demoUser of BOTANIKA.DEMO_USERS) {
-            const result = await this.withSecondarySession(
-                demoUser.email,
-                BOTANIKA.DEFAULT_ADMIN.password,
-                async session => {
-                    const profileRef = session.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(session.user.uid);
-                    const profileDoc = await profileRef.get();
+            try {
+                const result = await this.withSecondarySession(
+                    demoUser.email,
+                    BOTANIKA.DEFAULT_ADMIN.password,
+                    async session => {
+                        const profileRef = session.db.collection(BOTANIKA.COLLECTIONS.USERS).doc(session.user.uid);
+                        const profileDoc = await profileRef.get();
 
-                    if (!profileDoc.exists) {
-                        await profileRef.set({
-                            name: demoUser.name,
-                            email: demoUser.email,
-                            isAdmin: false,
-                            avatar: demoUser.avatar || '',
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        }, { merge: true });
-                    }
+                        if (!profileDoc.exists) {
+                            await profileRef.set({
+                                name: demoUser.name,
+                                email: demoUser.email,
+                                isAdmin: false,
+                                avatar: demoUser.avatar || '',
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString()
+                            }, { merge: true });
+                        }
 
-                    return {
-                        user: session.user,
-                        created: session.created,
-                        hadProfile: profileDoc.exists
-                    };
-                },
-                { allowCreate: true }
-            );
+                        return {
+                            user: session.user,
+                            created: session.created,
+                            uid: session.user.uid
+                        };
+                    },
+                    { allowCreate: true }
+                );
 
-            userMap[demoUser.email] = result.user.uid;
-
-            if (result.created || !result.hadProfile) {
-                createdUsers += 1;
+                if (result.created) {
+                    createdUsers += 1;
+                }
+                userMap[demoUser.email] = result.uid;
+            } catch (err) {
+                console.warn(`Failed to seed demo user ${demoUser.email}:`, err.message);
             }
         }
 
@@ -1593,7 +1596,12 @@ const OrderManager = {
 const BotanikaInsights = {
     getSnapshot() {
         const products = ProductManager.getAll();
-        const users = UserManager.getAll().filter(user => !user.isAdmin);
+        const currentUser = typeof UserManager !== 'undefined' ? UserManager.getCurrentUser() : null;
+        const users = UserManager.getAll().filter(user => 
+            !user.isAdmin && 
+            user.email !== 'admin@botanika.com' && 
+            (!currentUser || user.id !== currentUser.id)
+        );
         const orders = OrderManager.getAll();
         const inventoryValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
         const totalStockUnits = products.reduce((sum, product) => sum + product.stock, 0);
@@ -1869,22 +1877,23 @@ function createFooter() {
                 </svg>
             </div>
             <div class="social-icons">
-                <a href="#" aria-label="Facebook">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                <a href="https://www.linkedin.com/in/naveed-sohail-gung-285645310/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                        <rect x="2" y="9" width="4" height="12"/>
+                        <circle cx="4" cy="4" r="2"/>
                     </svg>
                 </a>
-                <a href="#" aria-label="Instagram">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="2" y="2" width="20" height="20" rx="5"/>
-                        <circle cx="12" cy="12" r="4"/>
-                        <circle cx="18" cy="6" r="1" fill="currentColor"/>
+                <a href="https://github.com/naveed-gung/" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
                     </svg>
                 </a>
-                <a href="#" aria-label="Pinterest">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <a href="https://naveed-gung.dev/" target="_blank" rel="noopener noreferrer" aria-label="Portfolio">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 6v8M9 18c1-2 2-4 3-6"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                     </svg>
                 </a>
             </div>
