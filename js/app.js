@@ -1938,7 +1938,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const footerPlaceholder = document.querySelector('.footer-placeholder');
         if (footerPlaceholder) {
             footerPlaceholder.replaceWith(createFooter());
-        } else if (!document.querySelector('.landing-page') && !document.querySelector('.auth-page') && !document.querySelector('.site-footer')) {
+        } else if (!document.querySelector('.landing-page') && !document.querySelector('.site-footer')) {
             pageTransitionEl.before(createFooter());
         }
     }
