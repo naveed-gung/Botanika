@@ -8,11 +8,11 @@ public class Test
     public static void Main()
     {
         try {
-            var task = FirebaseService.Instance.GetAllAsync<Product>(""products"");
+            var task = FirebaseService.Instance.GetAllAsync<Product>("products");
             task.Wait();
-            Console.WriteLine(""Success: "" + task.Result.Count);
+            Console.WriteLine("Success: " + task.Result.Count);
         } catch (Exception ex) {
-            Console.WriteLine(""Error: "" + ex.ToString());
+            Console.WriteLine("Error: " + ex.ToString());
         }
     }
 }
