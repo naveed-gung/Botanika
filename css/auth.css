@@ -13,6 +13,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+}
+
+.auth-page .site-footer {
+    width: 100%;
+    margin-top: var(--space-xl);
 }
 
 .back-home {
